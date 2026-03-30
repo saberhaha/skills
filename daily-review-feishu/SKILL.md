@@ -1,6 +1,6 @@
 ---
 name: daily-review-feishu
-description: 每日晚上 23:50 执行日总结，每周一 00:10 执行周复盘。将结果存入飞书文档，周评分写入本 agent 的多维表格。
+description: 每日执行日总结，每周执行周复盘。将结果存入飞书文档，周评分写入本 agent 的多维表格。触发时间由 config.yml 的 schedule 字段配置。
 config: ./config.yml
 ---
 
@@ -22,8 +22,6 @@ config: ./config.yml
 - `storage.backend`：存储后端，当前支持 `feishu`
 - `storage.daily_summary_folder_token`：每日总结文件夹 token
 - `storage.weekly_review_folder_token`：每周复盘文件夹 token
-- `storage.root_folder_token`：主目录 token（直接调飞书 API 创建子文件夹时使用）
-- `storage.doc_lib_folder_token`：文档库 token（直接调飞书 API 创建子文件夹时使用）
 - `storage.domain`：飞书域名（如 https://qima.feishu.cn）
 - `score_table.enabled`：是否启用周评分表，`false` 则跳过第八步
 - `score_table.app_token`：周评分多维表格 app token
@@ -31,26 +29,21 @@ config: ./config.yml
 
 ---
 
-## 触发时间
+## 触发时间与覆盖范围
 
 从 `./config.yml` 的 `schedule` 字段读取：
-- **日总结**：`schedule.daily`（默认 `50 23 * * *`，每天 23:50）
-- **周复盘**：`schedule.weekly`（默认 `10 0 * * 1`，每周一 00:10）
-
-## 时间范围
-
-- **日总结**：今天 00:00 至 `schedule.daily` 触发时刻
-- **周复盘**：周一 00:00 至周日末
+- **日总结**：每天 `schedule.daily` 触发（默认 `50 23 * * *`），覆盖当天 00:00 至触发时刻
+- **周复盘**：每周 `schedule.weekly` 触发（默认 `10 0 * * 1`），覆盖上周一 00:00 至上周日 23:59
 
 ---
 
-## 日总结流程 (每天 23:50)
+## 日总结流程（触发时间：schedule.daily）
 
 ### 第一步：读取记忆来源
 
 1. **记忆文件**
    - `memory/YYYY-MM-DD.md`（当天的记忆文件）
-   - `MEMORY.md`（核心记忆中今天相关的内容）
+   - `MEMORY.md`（扫描是否有与今天工作相关的规则或上下文，不需要全读）
 
 2. **Session 历史（含飞书消息）**
    - `sessions_list` 获取今天所有活跃 session
@@ -168,11 +161,11 @@ config: ./config.yml
      content="- [xxxx年xx月xx日-总结](<storage.domain>/docx/<daily_doc_token>)")
    ```
 
-   `<weekly_doc_token>` 直接使用步骤2查找/创建结果中得到的 token，无需单独查记忆文件。创建后同步写入当天记忆文件，供本周后续日子复用。
+   `<weekly_doc_token>` 直接使用步骤2查找/创建结果中得到的 token。
 
 ---
 
-## 周复盘流程 (每周一 00:10)
+## 周复盘流程（触发时间：schedule.weekly）
 
 ### 第一步：找到本周周复盘文档
 
