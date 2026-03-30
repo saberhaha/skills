@@ -113,7 +113,7 @@ config: ./config.yml
 > 当前仅实现了 `feishu` backend，其他 backend（如 Notion、local）待扩展。
 
 1. **检查文档是否存在**
-   - 文件夹：`每日总结/`，folder_token 从 config.yml 读取：`storage.daily_summary_folder_token`
+   - folder_token 从 config.yml 读取：`storage.daily_summary_folder_token`
    - 标题：`xxxx年xx月xx日-总结`
    - **判断方式**：`feishu_drive(action="list", folder_token=<storage.daily_summary_folder_token>)`，看是否有当天标题的文档，不依赖记忆文件判断
 
@@ -135,7 +135,7 @@ config: ./config.yml
 1. **获取本周日期范围**（周一 ~ 周日）
 
 2. **检查/创建周复盘文档**
-   - 文件夹：`每周复盘/`，folder_token 从 config.yml 读取：`storage.weekly_review_folder_token`
+   - folder_token 从 config.yml 读取：`storage.weekly_review_folder_token`
    - 标题：`xxxx年xx月xx日-xxxx年xx月xx日-周复盘总结`（周一日期-周日日期）
    - **判断方式（按顺序降级）**：
      1. 优先查当天或本周任意一天的记忆文件（`memory/YYYY-MM-DD.md`），找「本周周复盘 doc_token」字段
@@ -283,8 +283,7 @@ feishu_bitable_create_record(
 
 ## 注意事项
 
-1. **文档不存在时必须先创建**
-2. **日总结多次执行覆盖，周复盘只能追加**
-3. **只获取与我相关的消息，不读取无关群聊**
-4. **如果当天内容过少（少于3条事件），跳过创建，在次日总结中补记「昨日补记」**
-5. **所有 token 从 config.yml 读取，不在 SKILL.md 内硬编码**
+1. **日总结多次执行覆盖，周复盘只能追加**
+2. **只获取与我相关的消息，不读取无关群聊**
+3. **如果当天内容过少（少于3条事件），跳过创建，在次日总结中补记「昨日补记」**
+4. **所有 token 从 config.yml 读取，不在 SKILL.md 内硬编码**

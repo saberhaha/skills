@@ -15,12 +15,12 @@
 
 ## 第一步：在飞书创建目录结构
 
-在你的飞书云文档中，创建以下两个文件夹（位置随意，名称可自定）：
+在你的飞书云文档中，创建以下两个文件夹。推荐使用默认名，也可以自定义：
 
 ```
 你的工作目录/
-├── 每日总结/      ← 存放每天的日总结文档
-└── 每周复盘/      ← 存放每周的周复盘文档
+├── 每日总结/      ← 默认名，存放每天的日总结文档
+└── 每周复盘/      ← 默认名，存放每周的周复盘文档
 ```
 
 **获取文件夹 token 的方法**：
@@ -55,7 +55,7 @@
 复制以下模板，填入实际值，保存为 `./config.yml`（与 SKILL.md 同目录）：
 
 ```yaml
-# 触发时间（修改后需重新注册 cron）
+# 触发时间（修改后需重新注册 cron，且 cron 命令中的 --schedule 必须与此保持一致）
 schedule:
   daily: "50 23 * * *"       # 日总结执行时间，默认每天 23:50
   weekly: "10 0 * * 1"       # 周复盘执行时间，默认每周一 00:10
@@ -65,8 +65,6 @@ storage:
   backend: feishu
   daily_summary_folder_token: ""   # 第一步创建的「每日总结」文件夹 token
   weekly_review_folder_token: ""   # 第一步创建的「每周复盘」文件夹 token
-  root_folder_token: ""            # 工作目录 token（直接调飞书 API 时使用，可留空）
-  doc_lib_folder_token: ""         # 文档库 token（直接调飞书 API 时使用，可留空）
   domain: "https://xxx.feishu.cn"  # 你的飞书域名
 
 # 周评分 Bitable（不需要则设 enabled: false）
@@ -94,10 +92,10 @@ score_table:
 在 OpenClaw 中注册两个定时任务（时间以 config.yml 中的 schedule 为准）：
 
 ```bash
-# 日总结
+# 日总结（--schedule 时间需与 config.yml 中 schedule.daily 一致）
 openclaw cron add --schedule "50 23 * * *" --skill daily-review-feishu --task daily
 
-# 周复盘
+# 周复盘（--schedule 时间需与 config.yml 中 schedule.weekly 一致）
 openclaw cron add --schedule "10 0 * * 1" --skill daily-review-feishu --task weekly
 ```
 
@@ -111,7 +109,7 @@ openclaw cron add --schedule "10 0 * * 1" --skill daily-review-feishu --task wee
 - [ ] 飞书「每周复盘」文件夹已创建，token 已填入 config.yml
 - [ ] 飞书域名已填入 config.yml
 - [ ] USER.md 中 `What to call them` 已填写
-- [ ] cron 任务已注册（`openclaw cron list` 可查看）
+- [ ] cron 任务已注册（`openclaw cron list` 可查看），且 `--schedule` 时间与 config.yml 中 `schedule.*` 一致
 - [ ] （可选）周评分 Bitable 已创建，token 已填入 config.yml
 
 安装完成，Skill 将在设定时间自动执行。
