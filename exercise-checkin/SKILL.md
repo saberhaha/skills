@@ -79,55 +79,130 @@ cp /Users/yzpay/.openclaw/media/inbound/<最新文件> /tmp/openclaw/uploads/che
 {
   "action": "navigate",
   "profile": "user",
-  "url": "https://qima.feishu.cn/share/base/form/shrcnRMkIRAcx9Gbo8jKd05OObe"
+  "url": "https://qima.feishu.cn/share/base/form/shrcnRMkIRAcx9Gbo8jKd05OObe",
+  "loadState": "networkidle"
 }
 ```
 
-#### 2. ⚡ 上传打卡照片（优先第一步，时序关键）
+#### 2. ⚡ 上传打卡照片（CDP FileChooser 方法）
 
-> ⚠️ **时序关键：先 upload 注入 → 再点按钮**，顺序反了 React 不响应（图片名字显示但实际内容为空）
+> ⚠️ **重要**：飞书表单附件组件是 React 受控组件。`browser upload`、`setInputFiles`、`dispatch event`、`drag/drop` **全部无效**。
+> 唯一有效方法：CDP `Page.setInterceptFileChooserDialog` + 真实鼠标事件 + `DOM.setFileInputFiles(backendNodeId)`。
 
-**第零步：上传前先清空残留**
+将以下脚本保存为 `/tmp/feishu_upload.py`，替换 `PAGE_ID` 和 `FILE_PATH` 后执行：
 
-```json
-{"kind": "evaluate", "fn": "() => { const items = document.querySelectorAll('.bitable-53ec4a__attach-editor__item'); if (items.length === 0) return 'clean'; items.forEach(item => { item.dispatchEvent(new MouseEvent('mouseenter', {bubbles: true})); const delBtn = item.querySelector('.delete-img'); if (delBtn) delBtn.click(); }); return `cleared ${items.length} items`; }"}
+```python
+#!/usr/bin/env python3
+import socket, base64, struct, json, time
+
+HOST = '127.0.0.1'
+PORT = 9222
+PAGE_ID = '<browser open/navigate 返回的 targetId>'
+FILE_PATH = '/tmp/openclaw/uploads/checkin-YYYYMMDD.jpg'
+
+def ws_frame(data, opcode=1):
+    data = data if isinstance(data, bytes) else data.encode()
+    length = len(data)
+    mask = b'\x01\x02\x03\x04'
+    masked = bytes(b ^ mask[i % 4] for i, b in enumerate(data))
+    if length < 126: header = bytes([0x80|opcode, 0x80|length]) + mask
+    elif length < 65536: header = bytes([0x80|opcode, 0x80|126]) + struct.pack('>H',length) + mask
+    else: header = bytes([0x80|opcode, 0x80|127]) + struct.pack('>Q',length) + mask
+    return header + masked
+
+def ws_recv(s, timeout=3):
+    frames = []; s.settimeout(timeout)
+    while True:
+        try:
+            h = b''
+            while len(h)<2: c=s.recv(2-len(h)); h+=c if c else b'\x00'
+            if len(h)<2: break
+            l = h[1]&0x7f
+            if l==126: e=b''; [e:=e+s.recv(2-len(e)) for _ in range(10) if len(e)<2]; l=struct.unpack('>H',e)[0]
+            elif l==127: e=b''; [e:=e+s.recv(8-len(e)) for _ in range(10) if len(e)<8]; l=struct.unpack('>Q',e)[0]
+            d=b''
+            while len(d)<l: c=s.recv(min(8192,l-len(d))); d+=c if c else b''
+            try: frames.append(json.loads(d.decode()))
+            except: pass
+        except socket.timeout: break
+    return frames
+
+def send(s, i, m, p=None): s.send(ws_frame(json.dumps({"id":i,"method":m,"params":p or {}})))
+def wait(s, i, t=5):
+    st=time.time()
+    while time.time()-st<t:
+        for f in ws_recv(s,1):
+            if f.get('id')==i: return f
+    return None
+
+key = base64.b64encode(b'checkin_upload_1').decode()
+s = socket.socket(); s.connect((HOST, PORT))
+hs = f"GET /devtools/page/{PAGE_ID} HTTP/1.1\r\nHost:{HOST}:{PORT}\r\nUpgrade:websocket\r\nConnection:Upgrade\r\nSec-WebSocket-Key:{key}\r\nSec-WebSocket-Version:13\r\n\r\n"
+s.send(hs.encode()); s.settimeout(3)
+buf=b''
+while b'\r\n\r\n' not in buf: buf+=s.recv(1024)
+
+# 1. 启用 Page + 拦截 fileChooser
+send(s,1,'Page.enable'); time.sleep(0.2); ws_recv(s)
+send(s,2,'Page.setInterceptFileChooserDialog',{'enabled':True}); wait(s,2,3)
+
+# 2. 获取上传区域坐标
+send(s,3,'Runtime.evaluate',{'expression':'''(function(){
+    var el=document.querySelector('.attach-editor-upload,[class*=attach-editor-upload],.attache-upload-text');
+    if(!el) el=Array.from(document.querySelectorAll('[class*=attach] *')).find(e=>e.textContent.trim()==='添加本地文件'&&!e.querySelector('*'));
+    if(!el) return null;
+    var r=el.getBoundingClientRect();
+    return {x:r.left+r.width/2,y:r.top+r.height/2};
+})()''','returnByValue':True})
+r=wait(s,3,3); coords=r.get('result',{}).get('result',{}).get('value') if r else None
+if not coords: print('ERROR:找不到上传区域'); s.close(); exit(1)
+x,y=int(coords['x']),int(coords['y'])
+
+# 3. 真实鼠标点击（触发 fileChooser）
+for ev in ['mouseMoved','mousePressed','mouseReleased']:
+    send(s,40,'Input.dispatchMouseEvent',{'type':ev,'x':x,'y':y,'button':'left','clickCount':1,'modifiers':0})
+    time.sleep(0.05); ws_recv(s,0.2)
+
+# 4. 等待 fileChooserOpened 事件
+backend_node_id=None; st=time.time()
+while time.time()-st<3:
+    for f in ws_recv(s,0.5):
+        if f.get('method')=='Page.fileChooserOpened':
+            backend_node_id=f.get('params',{}).get('backendNodeId'); break
+    if backend_node_id: break
+if not backend_node_id: print('ERROR:fileChooserOpened未触发'); s.close(); exit(1)
+
+# 5. 用 backendNodeId 写入文件（绕过 React）
+send(s,5,'DOM.setFileInputFiles',{'backendNodeId':backend_node_id,'files':[FILE_PATH]}); wait(s,5,5)
+
+# 6. 验证
+time.sleep(3)
+send(s,6,'Runtime.evaluate',{'expression':'''(function(){
+    var items=document.querySelectorAll('[class*="attach"][class*="item"]');
+    return {count:items.length,hasImg:items.length>0?!!items[0].querySelector('img'):false};
+})()''','returnByValue':True})
+r=wait(s,6,5); result=r.get('result',{}).get('result',{}).get('value') if r else None
+print(f'上传结果:{result}')
+# hasImg:true = 成功，false = 失败需重试
+s.close()
 ```
 
-返回 `clean` 直接跳过，否则截图确认已清空。
-
-**第一步：先 upload 注入**（还没点按钮）
-
-```json
-{"action": "upload", "profile": "user", "selector": "input[type=file]", "paths": ["/tmp/openclaw/uploads/checkin-YYYYMMDD.jpg"]}
+执行：
+```bash
+python3 /tmp/feishu_upload.py
 ```
 
-**第二步：再点「Choose File」按钮触发**
+**验证标准**：
+- 输出 `hasImg: true` → ✅ 上传成功，继续填其他字段
+- 输出 `hasImg: false` → ❌ 失败，重新 navigate 表单后重试，最多 2 次
+
+**截图确认（脚本成功后）**：
 
 ```json
-{"kind": "click", "ref": "<snapshot 中 Choose File 的 ref>"}
+{"action": "screenshot", "profile": "user", "targetId": "<PAGE_ID>"}
 ```
 
-**第三步：JS 确认上传状态**
-
-```json
-{"kind": "evaluate", "fn": "() => { const items = document.querySelectorAll('.bitable-53ec4a__attach-editor__item'); const result = []; items.forEach((item, i) => { const img = item.querySelector('img'); const title = item.querySelector('.attach-item-title')?.textContent?.trim(); result.push({ index: i, filename: title, hasImg: !!img, imgSrc: img?.src?.slice(0, 80) }); }); return result; }"}
-```
-
-**判断标准**：
-- `filename` 与上传文件名一致，且 `hasImg: true` → ✅ 上传成功，继续填其他字段
-- `hasImg: false` 或 `filename` 不匹配 → ❌ 上传失败，**立即重试**（见重试机制）
-- 有多个 item → 逐一核对 filename，删掉不匹配的（hover 找 `.delete-img`），再确认
-
-**重试机制**（最多 2 次）：
-1. `navigate` 重新加载表单（全新状态）
-2. 重新执行第零步清空
-3. 重新执行第一、二步上传
-4. 再次执行第三步 JS 确认
-2 次后仍失败 → 截图告知用户卡在哪一步，请协助排查
-
-**第四步：确认通过，直接继续填写其他字段**
-
-JS 验证通过即可，无需截图让用户确认。
+确认附件区域显示图片缩略图。
 
 #### 3. 选择性别
 
@@ -190,15 +265,16 @@ JS 验证通过即可，无需截图让用户确认。
 
 ## ⚠️ 已知问题与解决方案
 
-### 图片上传失败（React 状态不更新）
-- **根本原因**：飞书表单用 React 自定义附件组件，Playwright `upload` 只能写入 `input.files`，但不触发 React 的 onChange 事件，导致**文件名显示但内容实际为空**，提交后附件是空的
-- **判断方法**：JS 查询有 `hasImg: true` 才算成功；只有文字文件名 = 失败
-- **解决方案**：重新加载表单，清空残留后重试（最多2次）
+### 图片上传（已解决，2026-03-31）
+- **根本原因**：飞书表单附件组件是 React 受控组件，所有外部写 `input.files` 的方法都被 React 拦截
+- **无效方法**（不要重复尝试）：`browser upload`、`DOM.setFileInputFiles(nodeId)`、`dispatch change event`、`drag/drop DragEvent`
+- **有效方法**：CDP `Page.setInterceptFileChooserDialog` + `Input.dispatchMouseEvent` + `DOM.setFileInputFiles(backendNodeId)`，见第七步脚本
+- **验证标准**：截图看到图片缩略图 + `hasImg: true`
 
 ### 选项点击无效
 - **原因**：飞书表单的单选框用自定义 React 组件，普通 ref 点击可能不触发状态更新
 - **解决方案**：用 JS evaluate + `querySelectorAll('.base-component-select-list-editor-row')[index].click()`
-- **验证**：用坐标精确点击，提交前截图确认蓝色圆点出现
+- **验证**：提交前截图确认蓝色圆点出现
 
 ### 提交后无法编辑附件
 - **原因**：飞书表单提交后附件字段只读，无法通过程序替换
