@@ -23,7 +23,7 @@ config: ./config.yml
 - `storage.daily_summary_folder_token`：每日总结文件夹 token
 - `storage.weekly_review_folder_token`：每周复盘文件夹 token
 - `storage.domain`：飞书域名（如 https://qima.feishu.cn）
-- `score_table.enabled`：是否启用周评分表，`false` 则跳过第八步
+- `score_table.enabled`：是否启用周评分表，默认且推荐 `true`；设为 `false` 则跳过第八步
 - `score_table.app_token`：周评分多维表格 app token
 - `score_table.table_id`：周评分表 table id
 
@@ -257,9 +257,9 @@ feishu_doc(action="append", doc_token=<weekly_doc_token>, content=深度分析+K
 - 反复出现的模式 → LEARNINGS.md + 考虑晋升 MEMORY.md
 - 影响危险操作/核心行为 → 必须晋升 MEMORY.md
 
-### 第八步：写入周评分记录表（可选）
+### 第八步：写入周评分记录表
 
-> 仅当 config.yml 中 `score_table.enabled: true` 时执行，否则跳过。
+> `score_table.enabled` 默认 `true`，无需改动。如需禁用，在 config.yml 中设置 `false` 后跳过本步。
 
 ```
 feishu_bitable_create_record(
