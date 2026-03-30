@@ -1,0 +1,2949 @@
+{
+  "_meta": {
+    "description": "表业务知识",
+    "schema": {
+      "key": "db.table_name",
+      "fields": {
+        "name": "业务名称",
+        "description": "业务描述"
+      }
+    }
+  },
+  "entries": {
+    "dm_pay.pay_trade_payment_billing_details_init": {
+      "name": "支付账单明细初始化表",
+      "description": "分润体系的支付交易账单明细，每日约7k~9k行，按日分区",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_trade_refund_billing_details_init": {
+      "name": "退款账单明细初始化表",
+      "description": "分润体系的退款交易账单明细，每日约46~121行，按日分区",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.profit_sharing_channel_trade_detail": {
+      "name": "分账渠道交易明细",
+      "description": "分账渠道账单核心结果表，28个业务字段+1个分区字段。支付(PAY)和退款(REFUND)两种记录类型。数据来源链路：RDS pay_tc_trade+pay_pc_payment_detail+pay_pc_refund_detail+pay_pc_refund_contract → ODS → 中间表 → 本表。结算信息(settle_time/real_pay_amount)有资金流场景从ga_account_log获取，无资金流(储值卡/礼品卡pay_channel_api=9003/90040003/90040004/90120001)从收单表获取。渠道映射通过pay_channel_api_map_for_profit_sharing配置。ETL任务: origin_trade_to_channel_trade_detail(job 6197)。RDS表分布: conn-id 20(pay_tc_trade/pay_pc_payment_detail/pay_pc_refund_detail/pay_pc_refund_contract), conn-id 22(ga_account_log), conn-id 15(cardvoucher_delivery_trade_log)",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "dm_pay.profit_sharing_pay_dp_status": {
+      "name": "分润任务配置状态",
+      "description": "分润任务的执行状态，按商户和渠道维度，最终导出到MySQL",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_channel_api_map_for_profit_sharing": {
+      "name": "支付渠道API映射",
+      "description": "渠道API到渠道名称和支付方式的映射维度表，仅29行",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.mch_list_for_profit_sharing_par": {
+      "name": "分润商户名单",
+      "description": "参与分润的商户列表，每日约4786行，按日分区",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_ga_account_log_idc_for_pay": {
+      "name": "一本账日志",
+      "description": "从MySQL增量同步的一本账对账日志，是分润链路的源头数据之一",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_tc_trade_inc_for_pay": {
+      "name": "交易中心交易数据增量表",
+      "description": "交易中心的增量交易数据，是分润链路的源头数据之一",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_pc_payment_detail_inc_for_pay": {
+      "name": "支付明细增量表",
+      "description": "支付中心的增量支付明细，是分润链路的源头数据之一",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dwd.dwd_pay_recharge_detail_df": {
+      "name": "充值明细表",
+      "description": "记录充值交易、充值退款、充值手续费等明细数据，按日分区存储",
+      "updated_at": "2026-03-07 15:29:49"
+    },
+    "ods.pay_profit_sharing_bill": {
+      "name": "分账账单明细",
+      "description": "分账渠道账单核心表。记录每笔分账账单明细，包含分账方(payer)、被分账方(payee)、账单金额(in_amount)、分账金额(ps_amount)、经营渠道(dep_channel: YZPay有赞支付/Douyin抖音/Meituan美团/Ele饿了么等)、记账时间(account_time)、结算时间(settle_time)、state=100为已完成。extra中含feeAmount分账手续费。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "dev.pay_transfer_success_items": {
+      "name": "转账成功明细表",
+      "description": "转账成功明细，包含prod_type(业务类型)、biz_type(转账方向)、金额、手续费等。2022年起成功转账数据，约974万+行。",
+      "updated_at": "2026-03-10 20:16:03",
+      "business": "出金",
+      "fields": [
+        {
+          "name": "day",
+          "type": "varchar",
+          "comment": "日期"
+        },
+        {
+          "name": "id",
+          "type": "bigint",
+          "comment": "主键ID"
+        },
+        {
+          "name": "prod_type",
+          "type": "varchar",
+          "comment": "业务类型，枚举: 有赞转账/通用转账/小额打款/赔付追偿/有赞企业转账/销售结算/仲裁/未知"
+        },
+        {
+          "name": "biz_type",
+          "type": "varchar",
+          "comment": "转账方向，枚举: 余额到余额/余额到卡/余额到微信零钱/余额到支付宝"
+        },
+        {
+          "name": "money",
+          "type": "bigint",
+          "comment": "转账金额，单位: 分"
+        },
+        {
+          "name": "fee",
+          "type": "bigint",
+          "comment": "手续费，单位: 分"
+        },
+        {
+          "name": "bank_card_type",
+          "type": "varchar",
+          "comment": "银行卡类型，枚举: 对公/对私"
+        },
+        {
+          "name": "arrive_type",
+          "type": "varchar",
+          "comment": "到账类型，枚举: 快速到账/普通转账"
+        },
+        {
+          "name": "status",
+          "type": "smallint",
+          "comment": "状态，枚举: 31(成功)"
+        },
+        {
+          "name": "operation_type",
+          "type": "varchar",
+          "comment": "操作类型，枚举: 单笔/批量"
+        },
+        {
+          "name": "upstream_code",
+          "type": "varchar",
+          "comment": "上游来源，枚举: ASSETCENTER/TRANSFER"
+        },
+        {
+          "name": "channel_type",
+          "type": "tinyint",
+          "comment": "渠道类型，枚举: 1/2/5/7/8"
+        }
+      ],
+      "partition_type": "no_par",
+      "time_field": "day",
+      "data_range": "2022年起",
+      "row_count": "约974万+",
+      "enums": {
+        "prod_type": [
+          "有赞转账",
+          "通用转账",
+          "小额打款",
+          "赔付追偿",
+          "有赞企业转账",
+          "销售结算",
+          "仲裁",
+          "未知"
+        ],
+        "biz_type": [
+          "余额到余额",
+          "余额到卡",
+          "余额到微信零钱",
+          "余额到支付宝"
+        ],
+        "bank_card_type": [
+          "对公",
+          "对私"
+        ],
+        "arrive_type": [
+          "快速到账",
+          "普通转账"
+        ],
+        "status": [
+          "31"
+        ],
+        "operation_type": [
+          "单笔",
+          "批量"
+        ],
+        "upstream_code": [
+          "ASSETCENTER",
+          "TRANSFER"
+        ],
+        "channel_type": [
+          "1",
+          "2",
+          "5",
+          "7",
+          "8"
+        ]
+      }
+    },
+    "dm_pay.pay_withdraw_channel_trans_flow_main": {
+      "name": "出金渠道流水表(DM层)",
+      "description": "出金渠道流水DM层加工表，包含trans_no(交易流水号)、mer_id(商户号)、trans_amount(金额)、netpay_txn_no(网联单号)、channel_type(1银联/2网联)、upstream_code(ASSETCENTER/PAYMENT_WITHDRAW/TRANSFER/RETRY_REFUND)等字段。ODS层原始表为ods.pay_withdraw_channel_trans_flow_main",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dev.pay_withdraw_items_22_now": {
+      "name": "提现明细表",
+      "description": "提现业务数据明细表，记录提现交易信息",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "ods.pay_pc_withdraw_instruction": {
+      "name": "提现指令原始表(收单层)",
+      "description": "提现业务收单层原始数据表，包含payer_id(付款方商户号)、amount(金额,单位分)、inst_account_no(加密银行卡号)、inst_account_name(加密户名)、inst_branch_name(加密支行名)、inst_account_type(账户类型)、state(0创建/1申请成功/2处理中/3成功/4失败/5退票/6申请失败/7人工处理)、withdraw_channel(5090/5099为转账到卡)、payer_account_type(10为店铺)、partner_id(业务线)、created_at、completed_at、memo、transfer_detail_no(关联出金流水)、trade_no等字段。加密字段解密：SM4后缀用udf.pay_decrypt_dft，否则用aes_decrypt(unbase64(x), unbase64('LtzbdoZ21/2yq+xOaInNJg=='))",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dev.all_pay_recharge_22_now": {
+      "name": "支付充值汇总表",
+      "description": "支付和充值业务的汇总数据，是GMV+PMV数据的上游依赖",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.dm_tc_trade_pay_recharge_22_now": {
+      "name": "交易中心支付充值表",
+      "description": "交易中心维度的支付充值数据，是支付充值汇总表的上游",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.dm_payment_detail_22_now": {
+      "name": "支付明细汇总表",
+      "description": "支付明细的汇总数据，从ods.pay_pc_payment_detail和ods.pay_tc_trading_event加工而来",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "ods.pay_pc_payment_detail": {
+      "name": "支付明细表",
+      "description": "支付通道层支付明细记录。核心字段：payment_detail_no(支付明细号)、trade_event_no(交易事件号，关联pay_tc_trade.main_event_no)、pay_channel_api(支付渠道API码)、completed_at(支付完成时间)、extra(扩展信息JSON，含ATTR_CARDVOUCHER_PAY_SPLIT储值卡拆分信息)。RDS表名同名，conn-id 20。",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "ods.pay_tc_trading_event": {
+      "name": "交易事件表",
+      "description": "交易过程中的每个事件（支付/退款等），一笔交易可有多个事件。核心字段：trade_event_no(事件号)、trade_no(交易号)、event_type(事件类型)、biz_type/biz_action(业务类型/动作)、amount/real_amount(金额)、env(环境)、partner_id/payer/payee(合作方/付款/收款方)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_trade_detail_collect_gmv": {
+      "name": "收单维度支付数据表",
+      "description": "收单维度的支付数据，已过滤重复支付，凯凯清洗的原始表",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.dm_all_pay_recharge_22_now": {
+      "name": "支付充值BI原始表",
+      "description": "PMV+GMV的BI大盘原始表，2024年后数据完整",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.wx_cert_un_finish_info": {
+      "name": "微信未实名认证表",
+      "description": "未实名的数据，即未实名的子商户号数据",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.valid_ucert_cert_info": {
+      "name": "有效认证信息表",
+      "description": "有效的认证信息，包含4(认证通过)、99(失效)的数据，不包括97(历史认证)",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.valid_ucert_category_qual_cert_info": {
+      "name": "商家认证类目原始表",
+      "description": "商家认证的类目信息原始数据",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.all_history_ucert_cert_info": {
+      "name": "认证信息快照表",
+      "description": "存储所有商户的认证信息历史快照，modify_type=1表示认证通过",
+      "business": "认证",
+      "fields": [
+        {
+          "name": "mch_id",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "source_id",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "source_id_type",
+          "type": "varchar",
+          "comment": "枚举: KDT_ID/USER_NO/CRM"
+        },
+        {
+          "name": "source_app_code",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "unified_cert_id",
+          "type": "bigint",
+          "comment": ""
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "comment": "枚举: 4/97/99"
+        },
+        {
+          "name": "version",
+          "type": "integer",
+          "comment": ""
+        },
+        {
+          "name": "audit_time",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "apply_time",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "biz_ext",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "modify_type",
+          "type": "tinyint",
+          "comment": "枚举: 0/2/3/1/4/8/7"
+        },
+        {
+          "name": "subject_cert_type",
+          "type": "varchar",
+          "comment": "枚举: 企业/个人/个体户/其他组织/政府及其他事业单位"
+        },
+        {
+          "name": "mch_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "principal_no",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "principal_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "contact_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "contact_phone",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "contact_email",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "merchant_abbreviation",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "service_tel",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "business_category",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "category_desc",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "shop_address",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "store_head_photo",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "store_indoor_photo",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "cashier_desk_photo",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "supplementary_papers",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "org_province_code",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "org_city_code",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "org_district_code",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "province_code",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "city_code",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "district_code",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "organization_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "business_scope",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "address",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "beneficiaries",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "business_papers_type",
+          "type": "varchar",
+          "comment": "枚举: 营业执照/统一社会信用代码证"
+        },
+        {
+          "name": "business_license",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "business_valid_start_time",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "business_valid_end_time",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "registered_capital",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "business_photo",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "papers_type",
+          "type": "varchar",
+          "comment": "枚举: 大陆身份证/来往内地通行证（中国香港居民）/护照（限境外人士）/来往大陆通行证（中国台湾居民）/来往内地通行证（中国澳门居民）/港澳台（身份证、居民通行证）/港澳居民证/外国人居留证"
+        },
+        {
+          "name": "person_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "papers_no",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "valid_start_time",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "valid_end_time",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "papers_photo_front",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "papers_photo_reverse",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "papers_photo_hand",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "agent_papers_type",
+          "type": "varchar",
+          "comment": "枚举: 来往大陆通行证（中国台湾居民）/大陆身份证/护照（限境外人士）/来往内地通行证（中国香港居民）/港澳台（身份证、居民通行证）/来往内地通行证（中国澳门居民）"
+        },
+        {
+          "name": "agent_person_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "agent_papers_no",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "agent_valid_start_time",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "agent_valid_end_time",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "agent_papers_photo_front",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "agent_papers_photo_reverse",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "agent_papers_photo_hand",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "major_category_code",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "major_category_desc",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "categorys",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "org_province_name",
+          "type": "varchar",
+          "comment": "区/县名称"
+        },
+        {
+          "name": "org_city_name",
+          "type": "varchar",
+          "comment": "区/县名称"
+        },
+        {
+          "name": "org_district_name",
+          "type": "varchar",
+          "comment": "区/县名称"
+        },
+        {
+          "name": "province_name",
+          "type": "varchar",
+          "comment": "区/县名称"
+        },
+        {
+          "name": "city_name",
+          "type": "varchar",
+          "comment": "区/县名称"
+        },
+        {
+          "name": "district_name",
+          "type": "varchar",
+          "comment": "区/县名称"
+        }
+      ],
+      "partition_type": "none",
+      "time_field": null,
+      "data_range": "",
+      "row_count": "",
+      "enums": {
+        "source_id_type": [
+          "KDT_ID",
+          "USER_NO",
+          "CRM"
+        ],
+        "status": [
+          "4",
+          "97",
+          "99"
+        ],
+        "modify_type": [
+          "0",
+          "2",
+          "3",
+          "1",
+          "4",
+          "8",
+          "7"
+        ],
+        "subject_cert_type": [
+          "企业",
+          "个人",
+          "个体户",
+          "其他组织",
+          "政府及其他事业单位"
+        ],
+        "business_papers_type": [
+          "营业执照",
+          "统一社会信用代码证"
+        ],
+        "papers_type": [
+          "大陆身份证",
+          "来往内地通行证（中国香港居民）",
+          "护照（限境外人士）",
+          "来往大陆通行证（中国台湾居民）",
+          "来往内地通行证（中国澳门居民）",
+          "港澳台（身份证、居民通行证）",
+          "港澳居民证",
+          "外国人居留证"
+        ],
+        "agent_papers_type": [
+          "来往大陆通行证（中国台湾居民）",
+          "大陆身份证",
+          "护照（限境外人士）",
+          "来往内地通行证（中国香港居民）",
+          "港澳台（身份证、居民通行证）",
+          "来往内地通行证（中国澳门居民）"
+        ]
+      },
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.pay_merchant_pay_config": {
+      "name": "子商户号配置表",
+      "description": "商户的子商户号配置，包括类型、状态、费率、渠道等。快照分区表，查询必须带par=${DP_1_DAYS_AGO_Ymd}。type枚举值已扩展到23，包含更多业务类型。",
+      "updated_at": "2026-03-10 20:17:01",
+      "business": "商户配置",
+      "fields": [
+        {
+          "name": "par",
+          "type": "string",
+          "comment": "快照分区，格式YYYYMMDD"
+        },
+        {
+          "name": "kdt_id",
+          "type": "bigint",
+          "comment": "店铺ID"
+        },
+        {
+          "name": "sub_mch_id",
+          "type": "varchar",
+          "comment": "子商户号"
+        },
+        {
+          "name": "type",
+          "type": "smallint",
+          "comment": "子商户号类型，枚举: 0公众号自有/1小程序自有/2小程序代销/3公众号代销/4微信h5自有/5支付宝条码代销/6未知/7支付宝小程序代销/8支付宝JS代销/9-23扩展类型"
+        },
+        {
+          "name": "status",
+          "type": "tinyint",
+          "comment": "状态，枚举: 0启用/1未知/2禁用/3未知"
+        },
+        {
+          "name": "mch_id",
+          "type": "varchar",
+          "comment": "商户号"
+        },
+        {
+          "name": "fee",
+          "type": "varchar",
+          "comment": "费率"
+        },
+        {
+          "name": "fee_type",
+          "type": "tinyint",
+          "comment": "费率类型，枚举: 0高费率/1低费率"
+        },
+        {
+          "name": "fee_tag",
+          "type": "varchar",
+          "comment": "费率标识，枚举: education_001教培机构行业活动等"
+        },
+        {
+          "name": "inst",
+          "type": "varchar",
+          "comment": "通道，枚举: NETPAY网联/UNIONPAY银联/FUYOU富友/GUOTONG国通/HUIFU汇付/PAF/SFT/SMB/YFT_JSB/YZT_JSB"
+        },
+        {
+          "name": "channel",
+          "type": "varchar",
+          "comment": "渠道，枚举: WXPAY微信/ALIPAY支付宝/BANK_CARD_PAY银行卡/LINEPAY"
+        },
+        {
+          "name": "biz_scene_type",
+          "type": "varchar",
+          "comment": "场景，枚举: ONLINE线上/OFFLINE线下"
+        },
+        {
+          "name": "is_real_name",
+          "type": "tinyint",
+          "comment": "是否实名"
+        }
+      ],
+      "partition_type": "snapshot",
+      "time_field": "par",
+      "data_range": "快照分区",
+      "row_count": "快照全量",
+      "enums": {
+        "type": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "18",
+          "19",
+          "20",
+          "21",
+          "22",
+          "23"
+        ],
+        "status": [
+          "0",
+          "1",
+          "2",
+          "3"
+        ],
+        "fee_type": [
+          "0",
+          "1"
+        ],
+        "fee_tag": [
+          "",
+          "education_001"
+        ],
+        "inst": [
+          "",
+          "NETPAY",
+          "UNIONPAY",
+          "FUYOU",
+          "GUOTONG",
+          "HUIFU",
+          "PAF",
+          "SFT",
+          "SMB",
+          "YFT_JSB",
+          "YZT_JSB"
+        ],
+        "channel": [
+          "",
+          "WXPAY",
+          "ALIPAY",
+          "BANK_CARD_PAY",
+          "LINEPAY"
+        ],
+        "biz_scene_type": [
+          "ONLINE",
+          "OFFLINE"
+        ]
+      }
+    },
+    "dw.dim_team_biz_extend": {
+      "name": "店铺扩展信息维度表",
+      "description": "店铺核心维度表(按日分区par='${DP_1_DAYS_AGO_Ymd}')，包含kdt_id、team_name(店铺名)、hq_kdt_id(总店ID)、payment_client_id、service_staff_name(服务人员)、is_paid(是否付费,1付费)、team_property(店铺属性,0正式)、team_type(店铺类型)、shop_topic(店铺主题)、shop_role(店铺角色,0单店/1总部/2分店)、created_time(开店时间)等字段。业务线映射：team_type=0微商城/6美业/7零售/1微小店/17爱逛小店/19旺小店/20爱逛CPS。付费商家过滤：is_paid=1 and team_property=0",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_funds_user": {
+      "name": "用户资金关系表(ID转换桥梁)",
+      "description": "存储user_no与target_id的映射关系，type=10时表示user_no(有赞商户号)与kdt_id(店铺ID)的对应关系。**核心用途：ID转换桥梁**",
+      "updated_at": "2026-03-10 21:19:32",
+      "business": "商户",
+      "fields": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "comment": "主键"
+        },
+        {
+          "name": "user_no",
+          "type": "bigint",
+          "comment": "有赞商户号"
+        },
+        {
+          "name": "target_id",
+          "type": "varchar",
+          "comment": "目标ID，type=10时等于kdt_id"
+        },
+        {
+          "name": "type",
+          "type": "integer",
+          "comment": "关系类型，枚举: 10表示user_no↔kdt_id映射"
+        },
+        {
+          "name": "state",
+          "type": "smallint",
+          "comment": "状态"
+        },
+        {
+          "name": "comment",
+          "type": "varchar",
+          "comment": "备注"
+        },
+        {
+          "name": "is_delete",
+          "type": "smallint",
+          "comment": "是否删除"
+        },
+        {
+          "name": "create_time",
+          "type": "bigint",
+          "comment": "创建时间"
+        },
+        {
+          "name": "update_time",
+          "type": "bigint",
+          "comment": "更新时间"
+        }
+      ],
+      "partition_type": "unknown",
+      "time_field": null,
+      "data_range": "全量",
+      "row_count": "千万级"
+    },
+    "dw.dwd_crm_gmv_level_d": {
+      "name": "店铺GMV层级表",
+      "description": "店铺GMV层级数据，包含kdt_id、gmv_level等字段，按日分区。可通过kdt_id关联dim_team_biz_extend查询服务归属",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_extension_point_config": {
+      "name": "支付扩展点配置表",
+      "description": "支付渠道扩展点配置，包含mch_id(商户号)、pay_channel_api(支付渠道API)、pay_channel(支付渠道)等字段。常用于查询商户的支付渠道配置，可通过mch_id关联pay_funds_user转换kdt_id",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_cc_bank_card_binding_list": {
+      "name": "C端银行卡绑卡列表",
+      "description": "C端用户银行卡绑卡记录，包含bind_open_id(绑卡流水号)、card_no_hash(卡号哈希)、is_unbind(是否解绑,0未解绑)、is_realname_binding(是否实名绑卡)、mch_id、sub_mch_id、member_id等字段。通过card_no_hash关联pay_cc_bank_card_info获取银行卡明文信息。统计绑卡数量时用count(distinct card_no_hash)",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_cc_bank_card_info": {
+      "name": "银行卡信息表(加密)",
+      "description": "银行卡核心信息表，所有敏感字段已加密，需用udf.pay_decrypt_dft解密。包含card_no_hash(卡号哈希,关联绑卡表)、bank_card_no(加密卡号)、holder_name(加密持卡人)、holder_id_no(加密身份证)、holder_reserved_phone(加密手机号)、card_bin、org_name(发卡行)、org_code、card_type等字段。需用hive引擎运行解密查询",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_cc_bank_info": {
+      "name": "银行信息维度表",
+      "description": "银行基础信息维度表，包含bank_code(银行编码)、bank_name(银行全称)、bank_short_name(银行简称)、org_name(机构名)、bank_level(银行级别)等字段。常用于通过bank_code关联出金表获取银行名称",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dm_pay.all_pay_succ_payment_detail": {
+      "name": "全量支付成功明细表",
+      "description": "全量支付成功的支付明细数据，包含order_no(E单号)、trade_no(支付单号)、inner_transaction_number(内部交易号)、payee_id、amount、pay_channel_api、channel_name、channel_no、bank_card_no、external_mch_id等字段。可通过bank_card_no查询用户交易记录，是支付交易查询的常用表",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_new_pay_order": {
+      "name": "新收单支付订单表",
+      "description": "新收单系统的支付订单原始表，包含kdt_id、order_no、trade_no、total_fee、pay_method、outer_transaction_number等字段。extra字段中含BANK_CARD_WATER_NO(银行卡绑卡流水号)，可通过regexp_extract提取。与pay_order为新老收单的关系",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_order": {
+      "name": "旧收单支付订单表",
+      "description": "旧收单系统的支付订单原始表，字段结构与pay_new_pay_order基本一致，包含kdt_id、order_no、trade_no、total_fee、pay_method等字段。extra字段中含BANK_CARD_WATER_NO。查询交易记录时需同时union pay_new_pay_order和pay_order",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_pc_payment_voucher": {
+      "name": "凭证支付/充值表",
+      "description": "线下凭证支付和充值记录表，包含payment_voucher_no、trade_no、acct_no(商户号)、amount(金额,单位分)、account_no(加密银行卡号)、account_name(加密户名)、state(2已完成)、used(1凭证充值/6商业化订购/7人工冻结)、pay_time、audit_time、outer_order_id等字段。敏感字段需用udf.pay_decrypt_dft解密",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_withdraw_channel_unionpay": {
+      "name": "出金渠道银联表",
+      "description": "出金渠道层银联数据表，包含trans_no(交易流水号)、mer_id(商户号)、payee_acct_no(加密收款卡号)、payee_acct_name(加密收款户名)、payee_acct_type(1对公/2对私)、payee_bank_no(银行编码)、trans_amount(金额)等字段。加密字段有两种后缀：'&SM4-CJ-ENCRYPT'(SM4加密)和'-CJ-ENCRYPT'(AES加密)，解密方式不同。通过trans_no关联pay_withdraw_channel_trans_flow_main",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_withdraw_channel_trans_flow_main": {
+      "name": "出金渠道流水主表(ODS)",
+      "description": "出金渠道流水主表ODS层，包含trans_no(交易流水号)、trans_status(0已受理/1成功/2失败/3等待受理/4处理中/5异常转人工)、trans_amount(金额)、mer_id(商户号)、channel_type(1银联/2网联)、upstream_code(ASSETCENTER=B端提现/PAYMENT_WITHDRAW=C端零钱提现/TRANSFER=转账/RETRY_REFUND=二次退款)、netpay_txn_no(网联单号)、created_at、end_at等字段。通过trans_no关联pay_withdraw_channel_unionpay获取银行卡信息",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_tc_trade": {
+      "name": "交易主表",
+      "description": "支付交易中心交易主记录。一笔交易一条记录。核心字段：trade_no(交易号)、biz_prod/biz_mode(业务产品/模式)、total_amount/real_pay_amount/discount_amount(总额/实付/优惠)、refund_amount(退款额)、real_settle_amount/settled_amount(结算额)、shared_amount/sharing_amount(分账额)、partner_id(合作方)、payer/payee(付款方/收款方)、settle_state(结算状态)。pay_dm_data工作流上游表。**跨境交易标识**：tags字段包含 CROSS_BORDER_ORDER 标签表示跨境交易，可通过 tags LIKE '%CROSS_BORDER_ORDER%' 过滤。trade_type='PAY' 表示支付交易。",
+      "updated_at": "2026-03-11 15:44:14"
+    },
+    "ods.pay_pc_transfer_detail": {
+      "name": "转账明细表",
+      "description": "转账业务明细表，包含transfer_detail_no(转账明细号)、trade_no、amount、payer_id、payee_id、biz_context(JSON含bizAction:WITHDRAW/WITHDRAW_TO_CARD/RECHARGE等)、state(3成功)、extra(含CONTRACT_TYPE)、payer(JSON含shopPrincipalName)、payee(JSON含acctName加密)等字段。用于查询提现到银行卡、转账到卡等出金数据，biz_context.bizAction区分业务类型",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_new_funds_trading": {
+      "name": "旧资金交易表",
+      "description": "旧资金交易系统的交易记录表，包含water_no、acct_no、kdt_id、type(如1006保证金)、biz_action(PAY/RECHARGE等)、state(3/100为成功)、money、in_out、partner_id等字段。用于保证金充值等历史数据查询",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_fee_bill_trade": {
+      "name": "手续费账单交易",
+      "description": "每笔交易的手续费计算明细。核心字段：fee_no(手续费编号)、mch_id/partner_id(商户/合作方)、pack_no/pack_pd_code/pack_ratio(套餐编号/产品/费率)、biz_pd_code/biz_source/biz_no(业务产品/来源/号)、biz_amount/fee_amount/fee_amount_subsidy(业务金额/手续费/补贴)、in_out(收支方向)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_prodtrans_month": {
+      "name": "渠道产品帐月统计表",
+      "description": "认证相关渠道产品帐的月度统计表，包含cumulate_code(统计编码)、stat_time(统计月份如202202)、total_count(总笔数)、amount(总金额)、reverse_count(冲正笔数)等字段。通过cumulate_code查询特定渠道产品帐使用信息",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dw.dws_pay_trade_payment_detail": {
+      "name": "支付交易明细宽表",
+      "description": "支付交易明细的DWS层宽表，合并了交易和支付信息，包含payment_detail_no(三方商户订单号)、external_payment_no(三方支付流水号)、trade_no、outer_trade_no(E单号)、pay_channel_api、biz_prod、biz_action、pay_amount等字段。常用于通过三方支付凭证(微信/支付宝单号)反查有赞支付单。支付宝单号可能需要用substring截断前2位查询",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dm_pay.pay_channel_order_record_shadow": {
+      "name": "平安付渠道订单记录表",
+      "description": "平安付渠道的订单记录表(影子表)，包含trade_no、out_trade_no、payment_detail_no、pay_channel_api、pay_medium(WXPAY/ALIPAY)、pay_medium_trade_no(三方支付流水号,微信42开头)、pay_medium_out_no(三方商户订单号,2开头,支付结果二维码下方的号码)、acquirer_mch_id、acquirer_sub_mch_id等字段。离线表数据还清洗了一份到RDS中的pay_channel_archive_library.pay_channel_order_record(TiDB表)",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dw.dim_team_cert_info": {
+      "name": "店铺认证信息维度表",
+      "description": "店铺认证信息维度表，包含kdt_id、mch_id(商户号)、enterprise_name(企业名称)、legal_representative_name(法人姓名)、main_cert_type(主体认证类型)、organization_type(组织类型)、credit_credentials_no(统一社会信用代码)、cert_status(认证状态)、unified_cert_id等字段。常用于关联凭证充值等数据查询商户认证主体信息",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_courier_agent_pay_apply": {
+      "name": "转账到银行卡申请表",
+      "description": "转账到银行卡的申请记录表(如骑手代付)，包含user_no(商户号)、biz_type(1银行卡转账)、money(金额)、fee(手续费)、status(31成功)、bank_card_no、payee_name、arrive_type、partner_id等字段。用于统计每月转账到银行卡的笔数、金额、商户数",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_prior_trade": {
+      "name": "先用后付主交易表",
+      "description": "先用后付业务的主交易表，包含trade_no、out_trade_no、state、total_amount、payee_id、buyer_id、extra(JSON含KDT_ID/ITEM_NAME/KDT_NAME)、credit_pay_time(信用支付时间)、real_pay_time(实际付款时间)等字段",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_prior_pay_trade": {
+      "name": "先用后付支付交易表",
+      "description": "先用后付的支付交易表，包含trade_no、pay_out_trade_no(支付外部单号)、pay_trade_no(支付交易号)、credit_channel(信用渠道)、channel_order_no等字段。通过pay_out_trade_no关联pay_t_pay_record查询FLD单号对应的交易信息",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_t_pay_record": {
+      "name": "支付记录(老表)",
+      "description": "老版支付系统的支付记录。核心字段：pay_mode/channel_code(支付方式/渠道)、command_type(指令类型)、inner_order_id/outer_order_id(内部/外部订单号)、debit_credit(借贷方向)。与pay_channel_pay_order对应历史数据。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_funds_inout_log": {
+      "name": "账务收支明细表",
+      "description": "账务系统的收支明细日志表(分区表)，包含acct_no(账户号)、kdt_id、water_no(流水号)、voucher_id(凭证号)、money(金额)、in_out(收支方向)、change_type(变更类型)、balance(余额)、accounting_date(记账日期)、par(分区)等字段。数据量较大，建议增量导入hive查询，需带sharding_id条件",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_funds_institution_voucher": {
+      "name": "资金机构凭证",
+      "description": "多渠道分账资金对账用。记录机构侧凭证信息，包含机构主体(ins_subject)、交易流水号(txn_seq_no)、金额(amount)、手续费(trade_fees)、账户信息(acct_nbr/acct_name)、交易时间等。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "ods.pay_funds_institution_bill_flow": {
+      "name": "资金机构账单流水",
+      "description": "多渠道分账资金对账用。记录机构侧账单流水，包含机构主体(ins_subject)、有赞商户号(yz_mch_id)、关联商户号(rel_yz_mch_id)、金额、收支类型(in_out_type)、交易类型(trans_type)、业务类型(biz_type)。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "ods.pay_funds_third_allocate_log": {
+      "name": "三方调拨明细",
+      "description": "分账调拨明细表。allocate_type区分sharing(分账)/sharing_cancel(分账撤销)，记录调拨金额(allocate_amt)、交易金额(trade_amt)、状态(status)、收单机构(acquire_inst)、存管机构(custody_inst)等。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "ods.pay_funds_op_allocate_log": {
+      "name": "调拨操作任务",
+      "description": "分账调拨操作任务表。记录调拨流水号、调拨类型、执行状态、重试次数、来源环境(source_env)等。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "dm_pay.profit_sharing_bills_check_error_detail": {
+      "name": "分账对账差异明细",
+      "description": "分账对账差异明细，记录对账中发现的差异数据。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "dm_pay.profit_sharing_recon_result": {
+      "name": "分账对账结果",
+      "description": "分账对账结果汇总表。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "ods.pay_channel_pay_order": {
+      "name": "渠道支付订单",
+      "description": "直接与外部支付渠道交互的订单记录。核心字段：pay_channel_no(渠道支付号)、payment_detail_no(关联支付明细)、pay_channel_api/channel_code/account_code(渠道API/编码/账户)、external_channel_no(外部渠道流水号)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_check_channel_bill": {
+      "name": "渠道对账单",
+      "description": "从外部支付渠道拉取的对账单，用于核对内部数据。分区表(par)。核心字段：channel_order_no/channel_trx_no(渠道订单号/交易号)、channel_type(渠道类型)、channel_trade_amount/channel_refund_amount/channel_fee(交易额/退款额/渠道手续费)、bill_date(账单日)、merchant_no/sub_merchant_no(商户号/子商户号)、is_check(是否已对账)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_settle_fund_detail": {
+      "name": "结算资金明细",
+      "description": "商户结算的每笔资金流水明细。核心字段：fund_detail_no/fee_no(资金明细号/手续费号)、kdt_id(店铺ID)、order_no(订单号)、fee_type/fee_property(费用类型/属性)、amount(金额)、inst(机构)、settle_time/settle_model/settle_channel(结算时间/模式/渠道)。pay_dm_data工作流上游表，用于分账月统计。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_settle_fee": {
+      "name": "结算手续费",
+      "description": "结算环节的手续费记录。核心字段：fee_no(手续费编号)、kdt_id(店铺ID)、order_no(订单号)、amount(手续费金额)、biz_scenes(业务场景)、fee_mode(费用模式)。pay_dm_data工作流上游表，用于分账月统计。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_channel_type": {
+      "name": "渠道类型维度",
+      "description": "渠道类型映射表。channel_type_code→channel_type_desc(中文名如微信/支付宝)、compatible_code(兼容码)。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_env_info": {
+      "name": "环境维度",
+      "description": "环境映射表。pay_env→pay_env_name。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_tool_pay_method": {
+      "name": "支付工具/方式维度",
+      "description": "支付工具方式映射表。pay_channel_api→pay_tool_name(支付工具名)+pay_method_name(支付方式名)+if_control_money(是否管控资金)。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_partner_id_info": {
+      "name": "合作方维度",
+      "description": "合作方ID→名称映射。partner_id→partner_name。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_biz_prod_enum": {
+      "name": "业务产品枚举",
+      "description": "业务产品码→名称+分组映射。biz_prod→biz_prod_name+group。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.yz_to_fin_shop_type_for_pay_pmv": {
+      "name": "店铺类型维度(PMV)",
+      "description": "店铺维度表，用于PMV统计。kdt_id→team_name(店铺名)、hq_kdt_id(总部ID)、pay_mch_type(商户类型)、bu(业务部门)、product(业务线:微商城/零售/餐饮等)、is_paid(是否付费)、team_property(店铺属性:正常/测试/公益)、open_status(经营状态)。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_pc_refund_detail": {
+      "name": "退款明细表",
+      "description": "支付通道层退款明细记录。核心字段：refund_detail_no(退款明细号)、refund_no(退款单号)、trade_no(交易号，关联pay_tc_trade.trade_no)、mch_id(商户号)、amount(退款金额)、pay_channel_api(支付渠道API码)、currency(币种)、extra(扩展信息JSON，含payTradeTime支付时间、CARDVOUCHER_REFUND_SPLIT_INFO储值卡退款拆分)。state>1为有效退款。RDS表名同名，conn-id 20。",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "ods.pay_pc_refund_contract": {
+      "name": "退款合约表",
+      "description": "退款合约记录，一笔退款一条合约。核心字段：refund_no(退款单号，关联refund_detail)、outer_trade_no(外部交易号即order_no)、outer_refund_no(外部退款号)、refund_mode(退款模式，0=原路退)、extra(含BEFORE_SETTLED_REFUND标识是否结算前退款)。RDS表名同名，conn-id 20。",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "ods.pay_cardvoucher_delivery_trade_log": {
+      "name": "提货卡交易日志",
+      "description": "储值卡/提货卡交易明细日志，仅储值卡场景使用。核心字段：unique_request_id(唯一请求ID，关联payment_detail_no或refund_detail_no)、operate_principal_amount(操作本金)、operate_bonus_amount(操作赠送金)。RDS表名: cardvoucher_delivery_trade_log(无pay_前缀)，conn-id 15。",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "dev.dm_all_pay_recharge_22_now": {
+      "name": "收单支付单聚合明细表",
+      "description": "收单支付单聚合明细表(运营和产品统计数据的核心表)。88列宽表，包含支付信息、渠道信息、商户店铺、GMV/PMV指标等。无par分区，使用pay_day(格式YYYY-MM-DD)做日期过滤。数据量约12亿+行(2022年至今)，查询时务必带pay_day条件。",
+      "updated_at": "2026-03-10 20:19:46",
+      "business": "收单",
+      "fields": [
+        {
+          "name": "pay_years",
+          "type": "varchar",
+          "comment": "支付年"
+        },
+        {
+          "name": "pay_month",
+          "type": "varchar",
+          "comment": "支付月"
+        },
+        {
+          "name": "pay_day",
+          "type": "varchar",
+          "comment": "支付日，业务时间字段"
+        },
+        {
+          "name": "pay_created_at",
+          "type": "varchar",
+          "comment": "支付创建时间"
+        },
+        {
+          "name": "payment_detail_no",
+          "type": "varchar",
+          "comment": "支付明细号"
+        },
+        {
+          "name": "pay_amount",
+          "type": "bigint",
+          "comment": "支付金额，单位: 分"
+        },
+        {
+          "name": "payee_id",
+          "type": "varchar",
+          "comment": "收款方ID"
+        },
+        {
+          "name": "payer_id",
+          "type": "varchar",
+          "comment": "付款方ID"
+        },
+        {
+          "name": "pay_tool_name",
+          "type": "varchar",
+          "comment": "支付工具名称，枚举: 微信小程序/微信条码支付/微信公众号支付/支付宝条码支付/支付宝wap支付/支付宝APP支付/支付宝小程序支付/支付宝花呗/支付宝花呗分期/支付宝协议支付/优惠抵扣/预付卡支付/标记支付/现金支付/抖音券支付/美团平台券支付/余额支付/预存金支付/E卡支付/储蓄卡支付/信用卡支付/银行转账支付/网银支付/汇款支付/有赞零钱支付/有赞云支付/微信APP支付/微信h5支付/微信信用分扣款/农行商E付/批发线下支付/采购单待结算支付/抖音券支付优惠/美团平台券支付优惠等"
+        },
+        {
+          "name": "pay_method_name",
+          "type": "varchar",
+          "comment": "支付方式名称，枚举: 微信支付/支付宝支付/储值卡支付/标记支付/账户支付/现金支付/银行卡支付等"
+        },
+        {
+          "name": "pay_channel_api",
+          "type": "varchar",
+          "comment": "渠道API码"
+        },
+        {
+          "name": "pay_detail_state",
+          "type": "varchar",
+          "comment": "支付明细状态，枚举: SUCCESS"
+        },
+        {
+          "name": "pay_is_repeated",
+          "type": "varchar",
+          "comment": "是否重复支付，枚举: 是/否"
+        },
+        {
+          "name": "is_control_money",
+          "type": "varchar",
+          "comment": "是否管控资金，枚举: 是/否"
+        },
+        {
+          "name": "is_self",
+          "type": "varchar",
+          "comment": "是否自有，枚举: 是/否"
+        },
+        {
+          "name": "pay_env_name",
+          "type": "varchar",
+          "comment": "支付环境名称，枚举: 微信小程序/微信H5页面/APP开店H5/支付宝APP内H5/有赞精选H5等"
+        },
+        {
+          "name": "pay_env",
+          "type": "varchar",
+          "comment": "支付环境代码"
+        },
+        {
+          "name": "payment_no",
+          "type": "varchar",
+          "comment": "支付号"
+        },
+        {
+          "name": "pay_type",
+          "type": "varchar",
+          "comment": "支付类型，枚举: PAY"
+        },
+        {
+          "name": "pay_biz_action",
+          "type": "varchar",
+          "comment": "支付业务动作，枚举: PAY支付/RECHARGE充值"
+        },
+        {
+          "name": "pay_biz_type",
+          "type": "varchar",
+          "comment": "支付业务类型，枚举: 200002/200019/300001/400001/SHOP_OFFLINE等"
+        },
+        {
+          "name": "pay_state",
+          "type": "varchar",
+          "comment": "支付状态，枚举: SUCCESS"
+        },
+        {
+          "name": "channel_no",
+          "type": "varchar",
+          "comment": "渠道编号"
+        },
+        {
+          "name": "channel_code",
+          "type": "varchar",
+          "comment": "渠道代码"
+        },
+        {
+          "name": "channel_name",
+          "type": "varchar",
+          "comment": "渠道名称，枚举: 优惠抵扣/银联/支付宝直连/余额/网联/待结算&余额支付/转账凭证/收付通/储值卡/平安付/三方平台券支付/现金支付/标记支付/云直通江苏银行/微信直连/易付通江苏银行/云定制渠道/微信自有/预存金/汇付/批发线下支付/富友/快手支付/网银支付/国通"
+        },
+        {
+          "name": "channel_amount",
+          "type": "bigint",
+          "comment": "渠道金额，单位: 分"
+        },
+        {
+          "name": "external_payment_no",
+          "type": "varchar",
+          "comment": "外部支付号"
+        },
+        {
+          "name": "external_mch_id",
+          "type": "varchar",
+          "comment": "外部商户号"
+        },
+        {
+          "name": "external_sub_mch_id",
+          "type": "varchar",
+          "comment": "外部子商户号"
+        },
+        {
+          "name": "external_bill_date",
+          "type": "integer",
+          "comment": "外部账单日"
+        },
+        {
+          "name": "external_bill_fee",
+          "type": "bigint",
+          "comment": "外部手续费，单位: 分"
+        },
+        {
+          "name": "external_bill_amount",
+          "type": "bigint",
+          "comment": "外部金额，单位: 分"
+        },
+        {
+          "name": "external_bill_ch_name",
+          "type": "varchar",
+          "comment": "外部渠道名称"
+        },
+        {
+          "name": "trade_years",
+          "type": "varchar",
+          "comment": "交易年"
+        },
+        {
+          "name": "trade_month",
+          "type": "varchar",
+          "comment": "交易月"
+        },
+        {
+          "name": "trade_day",
+          "type": "varchar",
+          "comment": "交易日"
+        },
+        {
+          "name": "trade_created_at",
+          "type": "varchar",
+          "comment": "交易创建时间"
+        },
+        {
+          "name": "trade_no",
+          "type": "varchar",
+          "comment": "交易号"
+        },
+        {
+          "name": "order_no",
+          "type": "varchar",
+          "comment": "订单号"
+        },
+        {
+          "name": "trade_state",
+          "type": "varchar",
+          "comment": "交易状态，枚举: SUCCESS/FINISHED"
+        },
+        {
+          "name": "settle_state",
+          "type": "varchar",
+          "comment": "结算状态，枚举: SUCCESS/SETTLING/FAIL/CREATE/空"
+        },
+        {
+          "name": "recharge_type_name",
+          "type": "varchar",
+          "comment": "充值类型名称，枚举: 储值充值/预付金充值/商户余额充值/营销资金充值/保证金充值等"
+        },
+        {
+          "name": "mch_id",
+          "type": "varchar",
+          "comment": "商户号"
+        },
+        {
+          "name": "trade_user_id",
+          "type": "varchar",
+          "comment": "交易用户ID"
+        },
+        {
+          "name": "partner_id",
+          "type": "varchar",
+          "comment": "合作方ID"
+        },
+        {
+          "name": "partner_name",
+          "type": "varchar",
+          "comment": "合作方名称"
+        },
+        {
+          "name": "yz_product",
+          "type": "varchar",
+          "comment": "有赞产品，枚举: 微商城/零售/美业/教育/群团团/爱逛/精选/商业化等"
+        },
+        {
+          "name": "biz_prod",
+          "type": "varchar",
+          "comment": "业务产品码，枚举: 1/2/16/1001/1003/1029/1010等"
+        },
+        {
+          "name": "biz_prod_name",
+          "type": "varchar",
+          "comment": "产品名称"
+        },
+        {
+          "name": "biz_mode",
+          "type": "varchar",
+          "comment": "业务模式，枚举: 1/2"
+        },
+        {
+          "name": "trade_type",
+          "type": "varchar",
+          "comment": "交易类型，枚举: PAY"
+        },
+        {
+          "name": "pay_biz_product",
+          "type": "varchar",
+          "comment": "支付业务产品"
+        },
+        {
+          "name": "total_amount",
+          "type": "bigint",
+          "comment": "总金额，单位: 分"
+        },
+        {
+          "name": "real_pay_amount",
+          "type": "bigint",
+          "comment": "实付金额，单位: 分"
+        },
+        {
+          "name": "refund_amount",
+          "type": "bigint",
+          "comment": "退款金额，单位: 分"
+        },
+        {
+          "name": "refund_inprocess_amount",
+          "type": "bigint",
+          "comment": "退款中金额，单位: 分"
+        },
+        {
+          "name": "trade_fee_amount",
+          "type": "bigint",
+          "comment": "交易手续费，单位: 分"
+        },
+        {
+          "name": "offline_tag",
+          "type": "varchar",
+          "comment": "线上线下标签"
+        },
+        {
+          "name": "main_sub_order",
+          "type": "varchar",
+          "comment": "主子订单，枚举: MAIN_ORDER/SUB_ORDER/空"
+        },
+        {
+          "name": "distri_order",
+          "type": "varchar",
+          "comment": "分销订单，枚举: DISTRIBUTE_ORDER/PURCHASE_ORDER/空"
+        },
+        {
+          "name": "biz_skm",
+          "type": "varchar",
+          "comment": "业务SKM"
+        },
+        {
+          "name": "goods_code",
+          "type": "varchar",
+          "comment": "商品码"
+        },
+        {
+          "name": "sub_pay_tool",
+          "type": "varchar",
+          "comment": "子支付工具(自定义标记支付方式)，枚举: WEIXIN_SYMBOl_PAY/POS_SYMBOl_PAY/ALIPAY_SYMBOl_PAY/标记付款-xxx等"
+        },
+        {
+          "name": "pack_ratio",
+          "type": "bigint",
+          "comment": "套餐费率"
+        },
+        {
+          "name": "pack_no",
+          "type": "varchar",
+          "comment": "套餐编号"
+        },
+        {
+          "name": "open_type",
+          "type": "varchar",
+          "comment": "开放类型，枚举: 支付开放/定制开放/空"
+        },
+        {
+          "name": "tags",
+          "type": "varchar",
+          "comment": "标签"
+        },
+        {
+          "name": "main_trade_no",
+          "type": "varchar",
+          "comment": "主交易号"
+        },
+        {
+          "name": "sub_trade_no",
+          "type": "varchar",
+          "comment": "子交易号"
+        },
+        {
+          "name": "merge_channel_fee",
+          "type": "decimal(22,2)",
+          "comment": "合并渠道手续费"
+        },
+        {
+          "name": "cai_trade_no",
+          "type": "varchar",
+          "comment": "菜交易号"
+        },
+        {
+          "name": "fx_trade_no",
+          "type": "varchar",
+          "comment": "分销交易号"
+        },
+        {
+          "name": "channel_fee",
+          "type": "decimal(22,2)",
+          "comment": "渠道手续费"
+        },
+        {
+          "name": "kdt_id",
+          "type": "bigint",
+          "comment": "店铺ID"
+        },
+        {
+          "name": "hq_kdt_id",
+          "type": "bigint",
+          "comment": "总部店铺ID，连锁为总部kdt_id，单店为kdt_id"
+        },
+        {
+          "name": "team_name",
+          "type": "varchar",
+          "comment": "店铺名称"
+        },
+        {
+          "name": "hq_team_name",
+          "type": "varchar",
+          "comment": "总店店铺名称"
+        },
+        {
+          "name": "origin_team_product",
+          "type": "varchar",
+          "comment": "原始业务线: 微商城/教育/微小店/餐饮/美业/零售/有赞云/外部店铺/归档(爱学贷、批发、收银、平台供货商)"
+        },
+        {
+          "name": "new_team_product",
+          "type": "varchar",
+          "comment": "新业务线"
+        },
+        {
+          "name": "pay_mch_type",
+          "type": "varchar",
+          "comment": "商户类型，枚举: 渠道商户/KA商户/K100商户/其他商户"
+        },
+        {
+          "name": "yz_product_final",
+          "type": "varchar",
+          "comment": "最终产品线，枚举: 社电电商/社电门店/新零售/美业/其他支付业务/群团团/社电教育/商业化等"
+        },
+        {
+          "name": "offline_tag_final",
+          "type": "varchar",
+          "comment": "最终线上线下，枚举: 线上/线下"
+        },
+        {
+          "name": "gmv_amount",
+          "type": "bigint",
+          "comment": "GMV金额，单位: 分"
+        },
+        {
+          "name": "gmv_refund_amount",
+          "type": "bigint",
+          "comment": "GMV退款金额，单位: 分"
+        },
+        {
+          "name": "gmv_num",
+          "type": "integer",
+          "comment": "GMV笔数"
+        },
+        {
+          "name": "pmv_amount",
+          "type": "bigint",
+          "comment": "PMV金额，单位: 分"
+        },
+        {
+          "name": "pmv_refund_amount",
+          "type": "bigint",
+          "comment": "PMV退款金额，单位: 分"
+        },
+        {
+          "name": "pmv_num",
+          "type": "integer",
+          "comment": "PMV笔数"
+        }
+      ],
+      "partition_type": "no_par",
+      "time_field": "pay_day",
+      "data_range": "2022年起",
+      "row_count": "约12亿+",
+      "enums": {
+        "pay_detail_state": [
+          "SUCCESS"
+        ],
+        "pay_is_repeated": [
+          "是",
+          "否"
+        ],
+        "is_control_money": [
+          "是",
+          "否"
+        ],
+        "is_self": [
+          "是",
+          "否"
+        ],
+        "pay_type": [
+          "PAY"
+        ],
+        "pay_state": [
+          "SUCCESS"
+        ],
+        "trade_state": [
+          "SUCCESS",
+          "FINISHED"
+        ],
+        "settle_state": [
+          "SUCCESS",
+          "SETTLING",
+          "FAIL",
+          "CREATE",
+          ""
+        ],
+        "main_sub_order": [
+          "MAIN_ORDER",
+          "SUB_ORDER",
+          ""
+        ],
+        "distri_order": [
+          "DISTRIBUTE_ORDER",
+          "PURCHASE_ORDER",
+          ""
+        ],
+        "offline_tag_final": [
+          "线上",
+          "线下"
+        ]
+      }
+    },
+    "dev.kk_mch_shop_cert_info": {
+      "name": "店铺认证信息表",
+      "description": "店铺认证信息，包含主体类型、认证状态、法人信息等。约9.3亿行，无分区，查询需加kdt_id条件。",
+      "updated_at": "2026-03-10 20:16:41",
+      "business": "商户",
+      "fields": [
+        {
+          "name": "kdt_id",
+          "type": "bigint",
+          "comment": "店铺ID"
+        },
+        {
+          "name": "team_name",
+          "type": "varchar",
+          "comment": "店铺名称"
+        },
+        {
+          "name": "team_type",
+          "type": "integer",
+          "comment": "店铺类型，枚举: 0微商城/1微小店/2爱学贷/3批发/4批发市场版/5餐饮/6美业/7零售/8收银/9微商城+收银/10零售总部运营中心/11零售仓储/12平台供货商/13外部店铺/14群团团/15社电教育/16美业(新)/17新零售/19有赞义卖/99有赞云/101个人微小店/102全员微小店"
+        },
+        {
+          "name": "shop_role",
+          "type": "integer",
+          "comment": "店铺角色"
+        },
+        {
+          "name": "open_status",
+          "type": "integer",
+          "comment": "开店状态"
+        },
+        {
+          "name": "open_status_name",
+          "type": "varchar",
+          "comment": "开店状态名称"
+        },
+        {
+          "name": "subject_cert_type",
+          "type": "integer",
+          "comment": "主体认证类型ID"
+        },
+        {
+          "name": "subject_cert_type_name",
+          "type": "varchar",
+          "comment": "主体认证类型名称"
+        },
+        {
+          "name": "person_cert_type",
+          "type": "integer",
+          "comment": "个人认证类型ID"
+        },
+        {
+          "name": "person_cert_type_name",
+          "type": "varchar",
+          "comment": "个人认证类型名称"
+        },
+        {
+          "name": "person_name",
+          "type": "varchar",
+          "comment": "法人姓名"
+        },
+        {
+          "name": "papers_type",
+          "type": "integer",
+          "comment": "证件类型"
+        },
+        {
+          "name": "papers_no",
+          "type": "varchar",
+          "comment": "证件号码"
+        },
+        {
+          "name": "organization_type",
+          "type": "integer",
+          "comment": "组织类型"
+        },
+        {
+          "name": "organization_name",
+          "type": "varchar",
+          "comment": "组织名称"
+        },
+        {
+          "name": "organization_code",
+          "type": "varchar",
+          "comment": "组织代码"
+        },
+        {
+          "name": "business_license",
+          "type": "varchar",
+          "comment": "营业执照"
+        },
+        {
+          "name": "unified_cert_type",
+          "type": "integer",
+          "comment": "统一认证类型"
+        },
+        {
+          "name": "unified_cert_id",
+          "type": "varchar",
+          "comment": "统一认证ID"
+        },
+        {
+          "name": "source_id_type",
+          "type": "integer",
+          "comment": "来源ID类型"
+        },
+        {
+          "name": "is_paid",
+          "type": "integer",
+          "comment": "是否付费"
+        },
+        {
+          "name": "team_property",
+          "type": "integer",
+          "comment": "店铺属性"
+        }
+      ],
+      "partition_type": "no_par",
+      "time_field": null,
+      "data_range": "全量",
+      "row_count": "约9.3亿",
+      "enums": {
+        "team_type": [
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "19",
+          "99",
+          "101",
+          "102"
+        ]
+      }
+    },
+    "dev.pay_withdraw_mch_date_22_now": {
+      "name": "余额提现统计表",
+      "description": "按日期+业务类型+渠道维度统计提现数据，包含B端提现和C端提现",
+      "business": "出金",
+      "fields": [
+        {
+          "name": "years",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "month",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "day",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "partner_id",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "payer_id",
+          "type": "bigint",
+          "comment": ""
+        },
+        {
+          "name": "payer_account_type",
+          "type": "integer",
+          "comment": "枚举: 10"
+        },
+        {
+          "name": "inst_account_type",
+          "type": "varchar",
+          "comment": "枚举: 对公/对私"
+        },
+        {
+          "name": "inst_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "account_type",
+          "type": "varchar",
+          "comment": "枚举: 银行卡/微信零钱"
+        },
+        {
+          "name": "channel_mch_id",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "withdraw_type",
+          "type": "varchar",
+          "comment": "枚举: 普通提现/快速提现"
+        },
+        {
+          "name": "state",
+          "type": "varchar",
+          "comment": "枚举: 提现成功/提现失败/申请失败/申请成功/提现退票"
+        },
+        {
+          "name": "partner_name",
+          "type": "varchar",
+          "comment": "枚举: 零售/美业/微商城/其他/微小店/有赞支付/旺小店/有赞云服务商/独立分销供货店铺商户号/通用资产-有赞客/商业化"
+        },
+        {
+          "name": "out_biz_name",
+          "type": "varchar",
+          "comment": "枚举: B端提现/C端提现"
+        },
+        {
+          "name": "channel_name",
+          "type": "varchar",
+          "comment": "枚举: 网联/银联/未知/平安"
+        },
+        {
+          "name": "net_union_biztp",
+          "type": "varchar",
+          "comment": "枚举: 140003/130002/16/04/300002/120099/300005"
+        },
+        {
+          "name": "gmv",
+          "type": "bigint",
+          "comment": ""
+        },
+        {
+          "name": "fee",
+          "type": "bigint",
+          "comment": ""
+        },
+        {
+          "name": "num",
+          "type": "bigint",
+          "comment": ""
+        }
+      ],
+      "partition_type": "time_field",
+      "time_field": "day",
+      "data_range": "",
+      "row_count": "",
+      "enums": {
+        "payer_account_type": [
+          "10"
+        ],
+        "inst_account_type": [
+          "对公",
+          "对私"
+        ],
+        "inst_name": [
+          "PAB",
+          "GDHXB",
+          "CIB",
+          "CMB",
+          "ICBC",
+          "CMBC",
+          "ABC",
+          "BOC",
+          "CCB",
+          "GDB",
+          "COMM",
+          "CITIC",
+          "HZ",
+          "GZB",
+          "CEB",
+          "NBB",
+          "PSBC",
+          "SPDB",
+          "LZB",
+          "HXB",
+          "DYB",
+          "HZLHNCSB",
+          "SCB",
+          "HFB",
+          "SCNXB",
+          "HRXJB",
+          "TJB",
+          "SRB",
+          "GYB",
+          "JSNXB",
+          "SHRCB",
+          "ZJNCSYB",
+          "ZZB",
+          "AHLARCB",
+          "SXNXS",
+          "ZJNXB",
+          "JS",
+          "ZJWSB",
+          "GANZB",
+          "QDNCB",
+          "BHB",
+          "SXNXB",
+          "DGNCSYB",
+          "WSB",
+          "CD",
+          "BJNCSB",
+          "CSB",
+          "JLBJLJBSB",
+          "HNNXB",
+          "FSRCB",
+          "ZJZJRCB",
+          "WXNCB",
+          "SHB",
+          "HAINANNXB",
+          "HKRCB",
+          "QLB",
+          "FJNXB",
+          "GXBBWB",
+          "HBNXB",
+          "ZQRCCB",
+          "SZNSB",
+          "GDNXB",
+          "ZYB",
+          "JXGXRCB",
+          "JZB",
+          "YNNXB",
+          "JNB",
+          "CAB",
+          "XXQNNCB",
+          "BJ",
+          "GZNSB",
+          "GZNXB",
+          "BSB",
+          "XAB",
+          "WZB",
+          "ZJLTSB",
+          "SJBBJSB",
+          "CQ",
+          "JSTZRCB",
+          "WEIFB",
+          "SHNSB",
+          "AHNXB",
+          "QDB",
+          "HBB",
+          "HUNNXS",
+          "SDRCB",
+          "DGY",
+          "NJB",
+          "NMGNXB",
+          "CZB",
+          "HDB",
+          "WLMQB",
+          "GLNXB",
+          "WHJSRCB",
+          "GXNXB",
+          "XTBGSJSB",
+          "JXNXB",
+          "WHNCB",
+          "HKB"
+        ],
+        "account_type": [
+          "银行卡",
+          "微信零钱"
+        ],
+        "withdraw_type": [
+          "普通提现",
+          "快速提现"
+        ],
+        "state": [
+          "提现成功",
+          "提现失败",
+          "申请失败",
+          "申请成功",
+          "提现退票"
+        ],
+        "partner_name": [
+          "零售",
+          "美业",
+          "微商城",
+          "其他",
+          "微小店",
+          "有赞支付",
+          "旺小店",
+          "有赞云服务商",
+          "独立分销供货店铺商户号",
+          "通用资产-有赞客",
+          "商业化"
+        ],
+        "out_biz_name": [
+          "B端提现",
+          "C端提现"
+        ],
+        "channel_name": [
+          "网联",
+          "银联",
+          "未知",
+          "平安"
+        ],
+        "net_union_biztp": [
+          "140003",
+          "130002",
+          "16",
+          "04",
+          "300002",
+          "120099",
+          "300005"
+        ]
+      },
+      "updated_at": "2026-03-10 20:03:38"
+    },
+    "dev.pay_gmv_26_items_1209": {
+      "name": "GMV/PMV聚合表",
+      "description": "由dev.dm_all_pay_recharge_22_now加工而来的GMV/PMV聚合表。区分赞内/赞外，按月/日/线上线下维度聚合。GMV排除测试店、第三方、货到付款折算；PMV在GMV基础上再排除自有支付方式(微信自有/储值卡/礼品卡/现金标记支付)。",
+      "business": "收单",
+      "fields": [
+        {
+          "name": "pay_years",
+          "type": "varchar",
+          "comment": "支付年"
+        },
+        {
+          "name": "pay_month",
+          "type": "varchar",
+          "comment": "支付月，格式YYYY-MM"
+        },
+        {
+          "name": "pay_day",
+          "type": "varchar",
+          "comment": "支付日"
+        },
+        {
+          "name": "payee_id",
+          "type": "varchar",
+          "comment": "收款方ID"
+        },
+        {
+          "name": "pay_tool_name",
+          "type": "varchar",
+          "comment": "支付工具名称"
+        },
+        {
+          "name": "pay_method_name",
+          "type": "varchar",
+          "comment": "支付方式名称"
+        },
+        {
+          "name": "partner_id",
+          "type": "varchar",
+          "comment": "合作方ID"
+        },
+        {
+          "name": "partner_name",
+          "type": "varchar",
+          "comment": "合作方名称"
+        },
+        {
+          "name": "trade_fee_amount",
+          "type": "bigint",
+          "comment": "交易手续费，单位: 分"
+        },
+        {
+          "name": "external_bill_fee",
+          "type": "bigint",
+          "comment": "外部手续费，单位: 分"
+        },
+        {
+          "name": "pack_ratio",
+          "type": "bigint",
+          "comment": "套餐费率"
+        },
+        {
+          "name": "pack_no",
+          "type": "varchar",
+          "comment": "套餐编号"
+        },
+        {
+          "name": "channel_fee",
+          "type": "bigint",
+          "comment": "渠道手续费"
+        },
+        {
+          "name": "offline_tag",
+          "type": "varchar",
+          "comment": "线上线下标签"
+        },
+        {
+          "name": "main_sub_order",
+          "type": "varchar",
+          "comment": "主子订单"
+        },
+        {
+          "name": "distri_order",
+          "type": "varchar",
+          "comment": "分销订单"
+        },
+        {
+          "name": "recharge_type_name",
+          "type": "varchar",
+          "comment": "充值类型名称"
+        },
+        {
+          "name": "open_type",
+          "type": "varchar",
+          "comment": "开放类型"
+        },
+        {
+          "name": "yz_product",
+          "type": "varchar",
+          "comment": "有赞产品"
+        },
+        {
+          "name": "offline_tag_final",
+          "type": "varchar",
+          "comment": "最终线上线下，枚举: 线上/线下"
+        },
+        {
+          "name": "yz_product_final",
+          "type": "varchar",
+          "comment": "最终产品线，枚举: 社电电商/社电门店/新零售/美业/群团团等"
+        },
+        {
+          "name": "pay_biz_product",
+          "type": "varchar",
+          "comment": "支付业务产品"
+        },
+        {
+          "name": "pay_mch_type",
+          "type": "varchar",
+          "comment": "商户类型"
+        },
+        {
+          "name": "gmv_type",
+          "type": "varchar",
+          "comment": "GMV类型，枚举: 赞内/赞外"
+        },
+        {
+          "name": "gmv_amount",
+          "type": "bigint",
+          "comment": "GMV金额，单位: 分"
+        },
+        {
+          "name": "gmv_refund_amount",
+          "type": "bigint",
+          "comment": "GMV退款金额，单位: 分"
+        },
+        {
+          "name": "gmv_num",
+          "type": "integer",
+          "comment": "GMV笔数"
+        },
+        {
+          "name": "pmv_amount",
+          "type": "bigint",
+          "comment": "PMV金额，单位: 分"
+        },
+        {
+          "name": "pmv_refund_amount",
+          "type": "bigint",
+          "comment": "PMV退款金额，单位: 分"
+        },
+        {
+          "name": "pmv_num",
+          "type": "integer",
+          "comment": "PMV笔数"
+        }
+      ],
+      "partition_type": "no_par",
+      "time_field": "pay_month",
+      "data_range": "2026年起",
+      "row_count": "聚合数据",
+      "enums": {
+        "gmv_type": [
+          "赞内",
+          "赞外"
+        ],
+        "offline_tag_final": [
+          "线上",
+          "线下"
+        ],
+        "yz_product_final": [
+          "社电电商",
+          "社电门店",
+          "新零售",
+          "美业",
+          "群团团"
+        ]
+      },
+      "upstream": "dev.dm_all_pay_recharge_22_now",
+      "updated_at": "2026-03-10 20:43:02"
+    },
+    "dev.kk_mch_shop_info": {
+      "name": "店铺信息表",
+      "description": "店铺基础信息表，包含kdt_id(店铺唯一ID)、店铺名称、店铺类型、经营状态、业务线、连锁关系等。与dev.kk_mch_shop_cert_info类似但字段更丰富。",
+      "business": "商户",
+      "fields": [
+        {
+          "name": "user_no",
+          "type": "bigint",
+          "comment": "有赞商户号"
+        },
+        {
+          "name": "kdt_id",
+          "type": "bigint",
+          "comment": "店铺唯一ID"
+        },
+        {
+          "name": "hq_kdt_id",
+          "type": "bigint",
+          "comment": "总部kdt_id，连锁为总部kdt_id，单店为kdt_id"
+        },
+        {
+          "name": "hq_team_name",
+          "type": "varchar",
+          "comment": "总店店铺名称"
+        },
+        {
+          "name": "team_name",
+          "type": "varchar",
+          "comment": "店铺名称"
+        },
+        {
+          "name": "team_type",
+          "type": "integer",
+          "comment": "店铺类型，枚举: 0微商城/1微小店/2爱学贷/3批发/4批发市场版/5餐饮/6美业/7零售"
+        },
+        {
+          "name": "shop_topic",
+          "type": "integer",
+          "comment": "微商城主题，枚举: 0无/1有赞教育"
+        },
+        {
+          "name": "shop_role",
+          "type": "integer",
+          "comment": "店铺连锁角色，枚举: 0单店/1总店/2门店/3独立仓/4合伙人/5外部店铺/6分销供货店铺"
+        },
+        {
+          "name": "open_status",
+          "type": "integer",
+          "comment": "店铺经营状态，枚举: 0沉睡中/1营业中/2已打烊/3保护期/4歇业/5试用期"
+        },
+        {
+          "name": "open_status_name",
+          "type": "varchar",
+          "comment": "店铺经营状态名称"
+        },
+        {
+          "name": "shop_role_name",
+          "type": "varchar",
+          "comment": "店铺连锁角色名称"
+        },
+        {
+          "name": "is_paid",
+          "type": "integer",
+          "comment": "是否付费，枚举: 1是/0否"
+        },
+        {
+          "name": "team_property",
+          "type": "integer",
+          "comment": "店铺属性，枚举: 0正常/1测试/2公益/3风控机器注册"
+        },
+        {
+          "name": "product",
+          "type": "varchar",
+          "comment": "业务线，枚举: 微商城/教育/微小店/餐饮/美业/零售/有赞云/外部店铺/归档"
+        },
+        {
+          "name": "service_staff_name",
+          "type": "varchar",
+          "comment": "CRM服务绑定人名称"
+        },
+        {
+          "name": "service_dept_name",
+          "type": "varchar",
+          "comment": "CRM服务绑定部门名称"
+        },
+        {
+          "name": "sale_staff_name",
+          "type": "varchar",
+          "comment": "CRM销售绑定人名称"
+        },
+        {
+          "name": "sale_dept_name",
+          "type": "varchar",
+          "comment": "CRM销售绑定部门名称"
+        }
+      ],
+      "partition_type": "no_par",
+      "time_field": null,
+      "data_range": "全量",
+      "row_count": "千万级",
+      "updated_at": "2026-03-10 20:56:11"
+    },
+    "dev.union_paid_shop_cert_info": {
+      "name": "已付费商家认证信息表",
+      "description": "已付费商家的认证信息表，包含认证类目(cert_category)、主体类型、证件信息等。**重要：此表中的商家都是已付费商家**。与dev.kk_mch_shop_cert_info类似但限定付费商家。",
+      "business": "商户",
+      "fields": [
+        {
+          "name": "user_no",
+          "type": "varchar",
+          "comment": "有赞商户号，可用于与payee_id关联"
+        },
+        {
+          "name": "kdt_id",
+          "type": "varchar",
+          "comment": "店铺ID"
+        },
+        {
+          "name": "cert_category",
+          "type": "varchar",
+          "comment": "认证类目，枚举值由需求方提供，如: 美业/健康/医学美容、美业/健康/医疗诊所"
+        },
+        {
+          "name": "cert_qualificatio_name",
+          "type": "varchar",
+          "comment": "资质名称"
+        },
+        {
+          "name": "team_name",
+          "type": "varchar",
+          "comment": "店铺名称"
+        },
+        {
+          "name": "team_type",
+          "type": "integer",
+          "comment": "店铺类型，枚举: 0微商城/1微小店/2爱学贷/3批发/4批发市场版/5餐饮/6美业/7零售"
+        },
+        {
+          "name": "shop_topic",
+          "type": "integer",
+          "comment": "微商城主题"
+        },
+        {
+          "name": "shop_role",
+          "type": "integer",
+          "comment": "店铺连锁角色"
+        },
+        {
+          "name": "hq_kdt_id",
+          "type": "bigint",
+          "comment": "总部kdt_id"
+        },
+        {
+          "name": "hq_user_no",
+          "type": "bigint",
+          "comment": "总部user_no"
+        },
+        {
+          "name": "subject_cert_type",
+          "type": "smallint",
+          "comment": "主体认证类型"
+        },
+        {
+          "name": "subject_cert_type_name",
+          "type": "varchar",
+          "comment": "主体认证类型名称"
+        },
+        {
+          "name": "cert_subject_name",
+          "type": "varchar",
+          "comment": "认证主体名称"
+        },
+        {
+          "name": "person_name",
+          "type": "varchar",
+          "comment": "法人姓名"
+        },
+        {
+          "name": "papers_no",
+          "type": "varchar",
+          "comment": "证件号码"
+        },
+        {
+          "name": "organization_name",
+          "type": "varchar",
+          "comment": "组织名称"
+        },
+        {
+          "name": "business_license",
+          "type": "varchar",
+          "comment": "营业执照"
+        },
+        {
+          "name": "organization_code",
+          "type": "varchar",
+          "comment": "组织代码"
+        },
+        {
+          "name": "short_name",
+          "type": "varchar",
+          "comment": "简称"
+        },
+        {
+          "name": "customer_id",
+          "type": "bigint",
+          "comment": "客户ID"
+        }
+      ],
+      "partition_type": "no_par",
+      "time_field": null,
+      "data_range": "已付费商家",
+      "row_count": "付费商家规模",
+      "updated_at": "2026-03-10 21:13:30"
+    },
+    "dev.kdt_id_fee_config": {
+      "name": "店铺费率配置表",
+      "description": "店铺维度的费率配置信息",
+      "business": "",
+      "fields": [
+        {
+          "name": "root_mch_id",
+          "type": "varchar",
+          "comment": "总部商户号"
+        },
+        {
+          "name": "mch_id",
+          "type": "varchar",
+          "comment": "商户号"
+        },
+        {
+          "name": "kdt_name",
+          "type": "varchar",
+          "comment": "店铺名称"
+        },
+        {
+          "name": "kdt_id",
+          "type": "varchar",
+          "comment": "店铺ID"
+        },
+        {
+          "name": "enterprise_name",
+          "type": "varchar",
+          "comment": "主体名称"
+        },
+        {
+          "name": "main_cert_type",
+          "type": "varchar",
+          "comment": "认证类型，枚举: 个体工商户/企业/个人/其他/其他组织/境外主体/政府及事业单位"
+        },
+        {
+          "name": "wx_low_sub",
+          "type": "bigint",
+          "comment": "微信低费率数量"
+        },
+        {
+          "name": "alipay_low_sub",
+          "type": "bigint",
+          "comment": "支付低费率数量"
+        },
+        {
+          "name": "root_kdt_id",
+          "type": "varchar",
+          "comment": "总部店铺ID"
+        },
+        {
+          "name": "root_kdt_name",
+          "type": "varchar",
+          "comment": "总部店铺名称"
+        },
+        {
+          "name": "paf_wx_sub",
+          "type": "varchar",
+          "comment": "平安付微信低费率子商户数"
+        },
+        {
+          "name": "paf_alipay_sub",
+          "type": "varchar",
+          "comment": "平安付支付宝低费率子商户数"
+        },
+        {
+          "name": "huifu_wx_sub",
+          "type": "varchar",
+          "comment": "汇付微信低费率子商户数"
+        },
+        {
+          "name": "huifu_alipay_sub",
+          "type": "varchar",
+          "comment": "汇付支付宝低费率子商户数"
+        },
+        {
+          "name": "fuyou_wx_sub",
+          "type": "varchar",
+          "comment": "富友微信低费率子商户数"
+        },
+        {
+          "name": "fuyou_alipay_sub",
+          "type": "varchar",
+          "comment": "富友支付宝低费率子商户数"
+        },
+        {
+          "name": "guotong_wx_sub",
+          "type": "varchar",
+          "comment": "高汇通微信低费率子商户数"
+        },
+        {
+          "name": "guotong_alipay_sub",
+          "type": "varchar",
+          "comment": "高汇通支付宝低费率子商户数"
+        },
+        {
+          "name": "total_wx_sub",
+          "type": "varchar",
+          "comment": "总微信低费率子商户数"
+        },
+        {
+          "name": "total_alipay_sub",
+          "type": "varchar",
+          "comment": "总支付宝低费率子商户数"
+        }
+      ],
+      "partition_type": "none",
+      "time_field": null,
+      "data_range": "",
+      "row_count": "",
+      "enums": {
+        "main_cert_type": [
+          "个体工商户",
+          "企业",
+          "个人",
+          "其他",
+          "其他组织",
+          "境外主体",
+          "政府及事业单位"
+        ]
+      }
+    },
+    "ods.pay_merchant_bank_pay_config": {
+      "name": "商户银行支付配置表",
+      "description": "商户在银行渠道的支付配置信息",
+      "business": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "comment": ""
+        },
+        {
+          "name": "mch_id",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "inst",
+          "type": "varchar",
+          "comment": "枚举: NETUNION_UNIONPAY"
+        },
+        {
+          "name": "sub_mch_id",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "customer_sub_mch_id",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "customer_id",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "mch_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "mch_short_name",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "business_license",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "mch_type",
+          "type": "varchar",
+          "comment": "枚举: 1/2/3/4"
+        },
+        {
+          "name": "mch_category",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "unbind_date",
+          "type": "bigint",
+          "comment": ""
+        },
+        {
+          "name": "created_at",
+          "type": "varchar",
+          "comment": ""
+        },
+        {
+          "name": "updated_at",
+          "type": "varchar",
+          "comment": ""
+        }
+      ],
+      "partition_type": "time_field",
+      "time_field": "created_at",
+      "data_range": "",
+      "row_count": "",
+      "enums": {
+        "inst": [
+          "NETUNION_UNIONPAY"
+        ],
+        "mch_type": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      }
+    },
+    "dm_pay.pay_cc_org_relation": {
+      "name": "多级商户模型关系表",
+      "description": "存储商户的连锁关系和开店关系。org_type=MERCHANT_ORG_RELATION表示连锁关系，root_no是总部商户号，node_no是子店商户号。单店时node_no=root_no（都是自己）",
+      "business": "组织关系",
+      "relation_types": {
+        "MERCHANT_ORG_RELATION": {
+          "description": "连锁关系",
+          "root_no": "总部商户号",
+          "node_no": "子店商户号",
+          "usage": "查询连锁店下所有子店"
+        },
+        "MERCHANT_SERVICE_RELATION": {
+          "description": "开店关系",
+          "parent_node_no": "业务线代码（如820000000058=微商城）",
+          "node_no": "商户号",
+          "biz_node_type": "节点类型（USER=用户）"
+        }
+      },
+      "fields": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "comment": "主键ID"
+        },
+        {
+          "name": "node_no",
+          "type": "varchar",
+          "comment": "节点商户号，连锁关系中为子店商户号"
+        },
+        {
+          "name": "biz_node_type",
+          "type": "varchar",
+          "comment": "节点类型，枚举: USER/BU/HQ/PU"
+        },
+        {
+          "name": "parent_node_no",
+          "type": "varchar",
+          "comment": "父节点商户号，开店关系中为业务线代码"
+        },
+        {
+          "name": "root_no",
+          "type": "varchar",
+          "comment": "根节点商户号（总部商户号），单店时=root_no=node_no"
+        },
+        {
+          "name": "node_name",
+          "type": "varchar",
+          "comment": "节点名称"
+        },
+        {
+          "name": "org_type",
+          "type": "varchar",
+          "comment": "组织类型，枚举: MERCHANT_SERVICE_RELATION(开店关系)/MERCHANT_ORG_RELATION(连锁关系)"
+        },
+        {
+          "name": "trade_mode",
+          "type": "varchar",
+          "comment": "交易模式，枚举: JOIN(加盟)/DIRECT(直营)"
+        },
+        {
+          "name": "lifecycle_status",
+          "type": "varchar",
+          "comment": "生命周期状态，枚举: valid(有效)/try(试用)"
+        },
+        {
+          "name": "created_at",
+          "type": "varchar",
+          "comment": "创建时间"
+        },
+        {
+          "name": "updated_at",
+          "type": "varchar",
+          "comment": ""
+        }
+      ],
+      "partition_type": "time_field",
+      "time_field": "created_at",
+      "data_range": "",
+      "row_count": "",
+      "enums": {
+        "biz_node_type": [
+          "USER",
+          "BU",
+          "HQ",
+          "PU"
+        ],
+        "node_name": [
+          "赞小店307308260311",
+          "赞小店827174260311",
+          "企业店-综合店01772553721sys866260311",
+          "赞小店727656260311",
+          "赞小店506298260311",
+          "赞小店346228260311",
+          "赞小店554492260311",
+          "月月🌙",
+          "个人小店01772554558sys205260311",
+          "赞小店391613260311",
+          "赞小店101266260311",
+          "小商店7d1224de5260311",
+          "小商店c1490a2db260311",
+          "小商店edc9677c8260311",
+          "小商店0d8bd6717260311",
+          "小商店5ee3fb145260311",
+          "小商店021ad1944260311",
+          "赞小店647194260311",
+          "赞小店774222260311",
+          "赞小店662706260311",
+          "遥遥领鲜果业",
+          "赞小店208563",
+          "赞小店956850",
+          "赞小店084167",
+          "小商店3bde4810b",
+          "小商店3663fa9c8",
+          "熊大茶饮",
+          "赞小店299492",
+          "赞小店103940",
+          "赞小店271608",
+          "乡下米酒便利店",
+          "赞小店145799",
+          "企业店-其他01772558009sys283",
+          "既来之则安之",
+          "守梦服务",
+          "赞小店073327",
+          "opi",
+          "无名",
+          "赞小店533129",
+          "赞小店453030",
+          "赞小店993144",
+          "SQ电竞",
+          "赞小店155095",
+          "赞小店147327",
+          "赞小店245676",
+          "responsly file",
+          "707",
+          "三月",
+          "赞小店411743",
+          "赞小店521204",
+          "赞小店773137",
+          "赞小店674368",
+          "unicornexquisite",
+          "赞小店064877",
+          "赞小店571070",
+          "赞小店169773",
+          "赞小店519787",
+          "赞小店472758",
+          "赞小店348622",
+          "赞小店441402",
+          "赞小店897080",
+          "赞小店808047",
+          "赞小店186650",
+          "啦烧机",
+          "PASAIND芭莎娅美妆（抖音）",
+          "赞小店076597",
+          "赞小店812314",
+          "赞小店918216",
+          "赞小店827294",
+          "赞小店294058",
+          "赞小店979084",
+          "livedomatt",
+          "赞小店515605",
+          "赞小店980159",
+          "赞小店678800",
+          "赞小店884819",
+          "赞小店727016",
+          "便民利民",
+          "店铺01772584604sys911",
+          "赞小店018672",
+          "绮岸普拉提婵柔",
+          "赞小店003469",
+          "企业店-清洁护理01772584917sys871",
+          "企业店-清洁护理01772584993sys968",
+          "企业店-中医理疗01772585132sys268",
+          "赞小店344805",
+          "刘德斌",
+          "我的瑜伽馆-璧山融创店",
+          "暂无",
+          "暂无运营中心",
+          "王建尧团结大号电话15033392367",
+          "赞小店750854",
+          "我的瑜伽馆-永川万达店",
+          "个人小店01772585446sys640",
+          "新百电器(固原新时代店)",
+          "我的瑜伽馆-永川华茂店",
+          "企业店-其他01772585535sys227",
+          "绮岸·普拉提婵柔",
+          "大侠",
+          "赞小店099608"
+        ],
+        "org_type": [
+          "MERCHANT_SERVICE_RELATION",
+          "MERCHANT_ORG_RELATION"
+        ],
+        "trade_mode": [
+          "JOIN",
+          "DIRECT"
+        ],
+        "lifecycle_status": [
+          "valid",
+          "try"
+        ]
+      }
+    },
+    "dev.bank_card_pay_order": {
+      "name": "银联银行卡支付订单表",
+      "description": "银联调单场景：根据主体名称、金额、清算日期、银行卡号前6后4位查找订单",
+      "business": "银联调单",
+      "fields": [
+        {
+          "name": "merchant_name",
+          "type": "varchar",
+          "comment": "商户名称"
+        },
+        {
+          "name": "mch_short_name",
+          "type": "varchar",
+          "comment": "简称"
+        },
+        {
+          "name": "bank_card_no",
+          "type": "varchar",
+          "comment": "卡号"
+        },
+        {
+          "name": "holder_id_no",
+          "type": "varchar",
+          "comment": "持卡人证号"
+        },
+        {
+          "name": "holder_phone",
+          "type": "varchar",
+          "comment": "持卡手机号"
+        },
+        {
+          "name": "holder_name",
+          "type": "varchar",
+          "comment": "持卡姓名"
+        },
+        {
+          "name": "id",
+          "type": "bigint",
+          "comment": "primary id"
+        },
+        {
+          "name": "pay_channel_no",
+          "type": "varchar",
+          "comment": "支付渠道单号"
+        },
+        {
+          "name": "payment_detail_no",
+          "type": "varchar",
+          "comment": "支付单号"
+        },
+        {
+          "name": "pay_channel_api",
+          "type": "varchar",
+          "comment": "支付方式"
+        },
+        {
+          "name": "partner_id",
+          "type": "varchar",
+          "comment": "业务方ID"
+        },
+        {
+          "name": "payer_id",
+          "type": "varchar",
+          "comment": "付款方ID"
+        },
+        {
+          "name": "payee_id",
+          "type": "varchar",
+          "comment": "收款方ID"
+        },
+        {
+          "name": "subject",
+          "type": "varchar",
+          "comment": "交易标题"
+        },
+        {
+          "name": "amount",
+          "type": "bigint",
+          "comment": "支付金额"
+        },
+        {
+          "name": "currency",
+          "type": "varchar",
+          "comment": "货币类型"
+        },
+        {
+          "name": "param",
+          "type": "varchar",
+          "comment": "支付参数"
+        },
+        {
+          "name": "channel_code",
+          "type": "varchar",
+          "comment": "渠道编码"
+        },
+        {
+          "name": "account_code",
+          "type": "varchar",
+          "comment": "账号编码"
+        },
+        {
+          "name": "external_channel_no",
+          "type": "varchar",
+          "comment": "外部渠道单号"
+        },
+        {
+          "name": "external_completed_at",
+          "type": "timestamp",
+          "comment": "三方支付完成时间"
+        },
+        {
+          "name": "external_channel_info",
+          "type": "varchar",
+          "comment": "外部渠道信息"
+        },
+        {
+          "name": "state",
+          "type": "smallint",
+          "comment": "支付状态（0:初始化状态 1:预支付成功 2:支付成功 3:支付失败 4:未知状态）"
+        },
+        {
+          "name": "error_reason",
+          "type": "varchar",
+          "comment": "错误描述"
+        },
+        {
+          "name": "attachment",
+          "type": "varchar",
+          "comment": "业务透传信息"
+        },
+        {
+          "name": "extra",
+          "type": "varchar",
+          "comment": "其它拓展信息"
+        },
+        {
+          "name": "sharding_id",
+          "type": "integer",
+          "comment": "分片id"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp",
+          "comment": "创建时间"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp",
+          "comment": "修改时间"
+        }
+      ],
+      "partition_type": "time_field",
+      "time_field": "created_at",
+      "data_range": "",
+      "row_count": "",
+      "enums": {}
+    }
+  }
+}

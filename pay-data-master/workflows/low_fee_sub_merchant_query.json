@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "description": "店铺低费率子商户签约状态查询",
+    "version": "1.0"
+  },
+  "workflow": {
+    "id": "low_fee_sub_merchant_query",
+    "name": "低费率子商户签约状态查询",
+    "description": "查询总店下未签约微信/支付宝低费率子商户的门店列表",
+    "pattern_type": "业务状态查询",
+    "business_scenario": "需要统计某个连锁店旗下哪些门店还没有签约低费率子商户",
+    "source_table": "dev.kdt_id_fee_config",
+    "input": {
+      "root_kdt_id": {
+        "description": "总店 kdt_id",
+        "required": true
+      },
+      "platform": {
+        "description": "查询平台：wx（微信）、alipay（支付宝）、all（两者任一）",
+        "enum": ["wx", "alipay", "all"],
+        "default": "all"
+      }
+    },
+    "output": {
+      "fields": ["kdt_id"],
+      "description": "未签约低费率子商户的门店 kdt_id 列表"
+    },
+    "variants": [
+      {
+        "name": "查询未签微信低费率子商户的门店",
+        "sql_template": "SELECT kdt_id FROM dev.kdt_id_fee_config WHERE root_kdt_id='{{root_kdt_id}}' AND total_wx_sub=0"
+      },
+      {
+        "name": "查询未签支付宝低费率子商户的门店",
+        "sql_template": "SELECT kdt_id FROM dev.kdt_id_fee_config WHERE root_kdt_id='{{root_kdt_id}}' AND total_alipay_sub=0"
+      },
+      {
+        "name": "查询未签微信或支付宝低费率子商户的门店",
+        "sql_template": "SELECT kdt_id FROM dev.kdt_id_fee_config WHERE root_kdt_id='{{root_kdt_id}}' AND (total_alipay_sub=0 OR total_wx_sub=0)"
+      }
+    ],
+    "key_concepts": {
+      "root_kdt_id": "总店 kdt_id，连锁店总部",
+      "kdt_id": "门店 kdt_id",
+      "total_wx_sub": "微信低费率子商户签约状态，0=未签约，1=已签约",
+      "total_alipay_sub": "支付宝低费率子商户签约状态，0=未签约，1=已签约",
+      "低费率子商户": "费率优惠的子商户号，需要单独签约"
+    },
+    "typical_questions": [
+      "查询总店 15326034 下未签微信低费率子商户的门店",
+      "哪些门店还没有签约支付宝低费率子商户",
+      "统计一下连锁店有多少门店没有签约低费率"
+    ]
+  }
+}

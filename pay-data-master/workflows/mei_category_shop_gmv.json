@@ -1,0 +1,56 @@
+{
+  "_meta": {
+    "description": "按认证类目筛选商家并统计GMV",
+    "version": "1.0"
+  },
+  "workflow": {
+    "id": "category_shop_gmv_analysis",
+    "name": "按认证类目统计商家GMV",
+    "description": "根据需求方提供的认证类目(cert_category)筛选已付费商家，统计其GMV/PMV数据",
+    "business_pattern": "类目筛选 + GMV统计",
+    "input": {
+      "cert_category_list": "需求方提供的认证类目列表（枚举值太多，由需求方给出）",
+      "time_range": "统计时间范围",
+      "example_categories": ["美业/健康/医学美容", "美业/健康/医疗诊所"]
+    },
+    "output": {
+      "final_table": "最终结果表，包含店铺ID、名称、GMV、PMV等"
+    },
+    "steps": [
+      {
+        "step": 1,
+        "name": "筛选类目商家",
+        "description": "从已付费商家表中按cert_category筛选商家",
+        "source_table": "dev.union_paid_shop_cert_info",
+        "target_table": "dev.yy_mei_shop_0225",
+        "key_fields": ["user_no", "kdt_id", "team_name", "cert_category"],
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT user_no, subject_cert_type_name, cert_subject_name,\n       cert_category, cert_qualificatio_name,\n       kdt_id, team_name, product, open_status, service_staff_name\nFROM {source_table}\nWHERE cert_category IN ({category_list})"
+      },
+      {
+        "step": 2,
+        "name": "统计GMV/PMV",
+        "description": "按payee_id维度统计GMV/PMV（注意：用user_no关联payee_id）",
+        "source_table": "dev.dm_all_pay_recharge_22_now",
+        "target_table": "dev.yy_mch_shop_gmv_0225",
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT payee_id,\n       SUM(gmv_amount) AS amount,\n       SUM(gmv_num) AS gmv_num,\n       SUM(pmv_amount) AS pmv,\n       SUM(pmv_num) AS pmv_num\nFROM {source_table}\nWHERE pay_day >= '{start_date}' AND pay_day < '{end_date}'\nGROUP BY payee_id"
+      },
+      {
+        "step": 3,
+        "name": "关联结果",
+        "description": "通过 user_no = payee_id 关联商家信息和GMV数据",
+        "source_tables": ["{step1_table}", "{step2_table}"],
+        "target_table": "dev.yy_mei_shop_gmv_0225",
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT a.*,\n       b.amount AS gmv,\n       b.gmv_num,\n       b.pmv,\n       b.pmv_num\nFROM {step1_table} a\nLEFT JOIN {step2_table} b ON a.user_no = b.payee_id"
+      }
+    ],
+    "key_concepts": {
+      "已付费商家": "dev.union_paid_shop_cert_info表中的商家都是已付费商家",
+      "cert_category": "认证类目，枚举值由需求方提供",
+      "user_no关联": "user_no(有赞商户号) 可直接与 payee_id(收款方ID) 关联",
+      "payee_id": "收款方ID，对应user_no有赞商户号"
+    },
+    "relationship_note": {
+      "user_no vs kdt_id": "user_no是有赞商户号，kdt_id是店铺ID，类似驾照号vs身份证号。在这个case中用user_no关联payee_id，如果需要用kdt_id，需通过ods.pay_funds_user中间表转换"
+    }
+  }
+}

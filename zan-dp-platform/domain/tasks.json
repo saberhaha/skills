@@ -1,0 +1,129 @@
+{
+  "_meta": {
+    "description": "任务业务知识",
+    "schema": {
+      "key": "task_id",
+      "fields": {
+        "job_name": "平台任务名称（如 pay_transfer_success_items）",
+        "name": "业务名称",
+        "description": "业务描述"
+      }
+    }
+  },
+  "entries": {
+    "6234": {
+      "name": "支付渠道API映射表生成",
+      "description": "生成支付渠道API到渠道名称和支付方式的映射维度表，仅29行小表",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_channel_api_map_for_profit_sharing"
+    },
+    "6197": {
+      "name": "分账渠道账单生成",
+      "description": "将支付和退款的中间表数据合并写入profit_sharing_channel_trade_detail。上游依赖: pay_trade_payment_billing_details_init(job 6216)和pay_trade_refund_billing_details_init(job 6217)",
+      "updated_at": "2026-03-08 22:15:04",
+      "job_name": "origin_trade_to_channel_trade_detail"
+    },
+    "6199": {
+      "name": "渠道交易账单转每日任务初始化",
+      "description": "按商户和渠道聚合渠道交易明细，关联商户名单生成分润任务配置状态，是分润链路的第二瓶颈",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "profit_trade_detail_to_task_config_init"
+    },
+    "6200": {
+      "name": "分润状态导出MySQL",
+      "description": "将分润任务配置状态从Hive导出到MySQL供业务系统消费",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "status_init_to_mysql"
+    },
+    "6202": {
+      "name": "渠道交易明细发送NSQ",
+      "description": "将渠道交易明细逐条发送到NSQ消息队列，供下游业务系统实时消费",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "channel_trade_detail_to_nsq"
+    },
+    "5335": {
+      "name": "转账成功明细任务",
+      "description": "生成转账成功明细表dev.pay_transfer_success_items，属于工作流1100",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_transfer_success_items"
+    },
+    "5338": {
+      "name": "提现明细任务",
+      "description": "生成提现明细表dev.pay_withdraw_items_22_now，属于工作流1100",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_withdraw_items_22_now"
+    },
+    "5595": {
+      "name": "GMV+PMV商户日汇总任务",
+      "description": "生成按商户+日维度汇总的GMV+PMV数据表dev.pay_gmv_pmv_mch_22_now，属于工作流1146",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_pmv_23"
+    },
+    "5613": {
+      "name": "支付充值汇总任务",
+      "description": "生成支付充值汇总表dm_pay.dm_all_pay_recharge_22_now，属于工作流1146",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "dm_all_pay_recharge_22_now"
+    },
+    "5575": {
+      "name": "交易中心支付充值任务",
+      "description": "生成交易中心支付充值表dev.dm_tc_trade_pay_recharge_22_now，属于工作流1146",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "dm_tc_trade_pay_recharge_22_now"
+    },
+    "5557": {
+      "name": "支付明细汇总任务",
+      "description": "从ods.pay_pc_payment_detail和ods.pay_tc_trading_event生成支付明细汇总表dev.dm_payment_detail_22_now，属于工作流1146",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "dm_payment_detail_22_now"
+    },
+    "4709": {
+      "name": "收单维度支付数据任务",
+      "description": "生成收单维度支付数据表dm_pay.pay_trade_detail_collect_gmv，已过滤重复支付，属于工作流998",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_succ_trade_detail_collect"
+    },
+    "5469": {
+      "name": "渠道支付成本任务",
+      "description": "生成渠道支付成本表dev.pay_channel_order_items_cost，属于工作流1108",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "channel_order_items_22_now"
+    },
+    "5433": {
+      "name": "付费商户认证信息任务",
+      "description": "生成付费商户认证信息表dev.union_paid_shop_cert_info，属于工作流1045",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "union_paid_shop_cert_info"
+    },
+    "5648": {
+      "name": "店铺认证信息任务",
+      "description": "生成店铺认证信息表dev.kk_shop_new_cert_info，属于工作流1045",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "all_mch_cert_info"
+    },
+    "5428": {
+      "name": "微信未实名认证任务",
+      "description": "生成微信未实名认证表dm_pay.wx_cert_un_finish_info，属于工作流1057",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "wx_cert_unfinish_stat"
+    },
+    "6216": {
+      "name": "支付账单明细初始化",
+      "job_name": "gen_pay_trade_payment_billing_details_init",
+      "description": "生成分账用的支付账单初始化数据，从交易明细和一本账数据合并",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "6217": {
+      "name": "退款账单明细初始化",
+      "job_name": "gen_pay_trade_refund_billing_details_init",
+      "description": "生成分账用的退款账单初始化数据，从退款明细和一本账数据合并",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "6227": {
+      "name": "分润用一本账日志初始化",
+      "job_name": "pay_ga_account_log_for_profit_sharing_init",
+      "description": "从ga_account_log提取分润相关的一本账日志，过滤条件: sub_biz_type IN (SETTLEMENT/SALE/REFUND), account_type IN (10/51/56/MARK_PAY_ACCT), biz_pay_tool != MARK_PAY",
+      "updated_at": "2026-03-08 22:15:04"
+    }
+  }
+}

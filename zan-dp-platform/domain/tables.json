@@ -1,0 +1,419 @@
+{
+  "_meta": {
+    "description": "表业务知识",
+    "schema": {
+      "key": "db.table_name",
+      "fields": {
+        "name": "业务名称",
+        "description": "业务描述"
+      }
+    }
+  },
+  "entries": {
+    "dm_pay.pay_trade_payment_billing_details_init": {
+      "name": "支付账单明细初始化表",
+      "description": "分润体系的支付交易账单明细，每日约7k~9k行，按日分区",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_trade_refund_billing_details_init": {
+      "name": "退款账单明细初始化表",
+      "description": "分润体系的退款交易账单明细，每日约46~121行，按日分区",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.profit_sharing_channel_trade_detail": {
+      "name": "分账渠道交易明细",
+      "description": "分账渠道账单核心结果表，28个业务字段+1个分区字段。支付(PAY)和退款(REFUND)两种记录类型。数据来源链路：RDS pay_tc_trade+pay_pc_payment_detail+pay_pc_refund_detail+pay_pc_refund_contract → ODS → 中间表 → 本表。结算信息(settle_time/real_pay_amount)有资金流场景从ga_account_log获取，无资金流(储值卡/礼品卡pay_channel_api=9003/90040003/90040004/90120001)从收单表获取。渠道映射通过pay_channel_api_map_for_profit_sharing配置。ETL任务: origin_trade_to_channel_trade_detail(job 6197)。RDS表分布: conn-id 20(pay_tc_trade/pay_pc_payment_detail/pay_pc_refund_detail/pay_pc_refund_contract), conn-id 22(ga_account_log), conn-id 15(cardvoucher_delivery_trade_log)",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "dm_pay.profit_sharing_pay_dp_status": {
+      "name": "分润任务配置状态",
+      "description": "分润任务的执行状态，按商户和渠道维度，最终导出到MySQL",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_channel_api_map_for_profit_sharing": {
+      "name": "支付渠道API映射",
+      "description": "渠道API到渠道名称和支付方式的映射维度表，仅29行",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.mch_list_for_profit_sharing_par": {
+      "name": "分润商户名单",
+      "description": "参与分润的商户列表，每日约4786行，按日分区",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_ga_account_log_idc_for_pay": {
+      "name": "一本账日志",
+      "description": "从MySQL增量同步的一本账对账日志，是分润链路的源头数据之一",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_tc_trade_inc_for_pay": {
+      "name": "交易中心交易数据增量表",
+      "description": "交易中心的增量交易数据，是分润链路的源头数据之一",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dm_pay.pay_pc_payment_detail_inc_for_pay": {
+      "name": "支付明细增量表",
+      "description": "支付中心的增量支付明细，是分润链路的源头数据之一",
+      "updated_at": "2026-03-07 17:46:41"
+    },
+    "dwd.dwd_pay_recharge_detail_df": {
+      "name": "充值明细表",
+      "description": "记录充值交易、充值退款、充值手续费等明细数据，按日分区存储",
+      "updated_at": "2026-03-07 15:29:49"
+    },
+    "ods.pay_profit_sharing_bill": {
+      "name": "分账账单明细",
+      "description": "分账渠道账单核心表。记录每笔分账账单明细，包含分账方(payer)、被分账方(payee)、账单金额(in_amount)、分账金额(ps_amount)、经营渠道(dep_channel: YZPay有赞支付/Douyin抖音/Meituan美团/Ele饿了么等)、记账时间(account_time)、结算时间(settle_time)、state=100为已完成。extra中含feeAmount分账手续费。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "dev.pay_transfer_success_items": {
+      "name": "转账成功明细表",
+      "description": "转账业务数据，记录成功的转账交易明细",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.pay_withdraw_channel_trans_flow_main": {
+      "name": "出金渠道流水表(DM层)",
+      "description": "出金渠道流水DM层加工表，包含trans_no(交易流水号)、mer_id(商户号)、trans_amount(金额)、netpay_txn_no(网联单号)、channel_type(1银联/2网联)、upstream_code(ASSETCENTER/PAYMENT_WITHDRAW/TRANSFER/RETRY_REFUND)等字段。ODS层原始表为ods.pay_withdraw_channel_trans_flow_main",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dev.pay_withdraw_items_22_now": {
+      "name": "提现明细表",
+      "description": "提现业务数据明细表，记录提现交易信息",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "ods.pay_pc_withdraw_instruction": {
+      "name": "提现指令原始表(收单层)",
+      "description": "提现业务收单层原始数据表，包含payer_id(付款方商户号)、amount(金额,单位分)、inst_account_no(加密银行卡号)、inst_account_name(加密户名)、inst_branch_name(加密支行名)、inst_account_type(账户类型)、state(0创建/1申请成功/2处理中/3成功/4失败/5退票/6申请失败/7人工处理)、withdraw_channel(5090/5099为转账到卡)、payer_account_type(10为店铺)、partner_id(业务线)、created_at、completed_at、memo、transfer_detail_no(关联出金流水)、trade_no等字段。加密字段解密：SM4后缀用udf.pay_decrypt_dft，否则用aes_decrypt(unbase64(x), unbase64('LtzbdoZ21/2yq+xOaInNJg=='))",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dev.pay_gmv_pmv_mch_22_now": {
+      "name": "GMV+PMV商户日汇总表",
+      "description": "按商户+日维度汇总的GMV+PMV数据，用于BI大盘展示，2024年后数据完整",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.all_pay_recharge_22_now": {
+      "name": "支付充值汇总表",
+      "description": "支付和充值业务的汇总数据，是GMV+PMV数据的上游依赖",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.dm_tc_trade_pay_recharge_22_now": {
+      "name": "交易中心支付充值表",
+      "description": "交易中心维度的支付充值数据，是支付充值汇总表的上游",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.dm_payment_detail_22_now": {
+      "name": "支付明细汇总表",
+      "description": "支付明细的汇总数据，从ods.pay_pc_payment_detail和ods.pay_tc_trading_event加工而来",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "ods.pay_pc_payment_detail": {
+      "name": "支付明细表",
+      "description": "支付通道层支付明细记录。核心字段：payment_detail_no(支付明细号)、trade_event_no(交易事件号，关联pay_tc_trade.main_event_no)、pay_channel_api(支付渠道API码)、completed_at(支付完成时间)、extra(扩展信息JSON，含ATTR_CARDVOUCHER_PAY_SPLIT储值卡拆分信息)。RDS表名同名，conn-id 20。",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "ods.pay_tc_trading_event": {
+      "name": "交易事件表",
+      "description": "交易过程中的每个事件（支付/退款等），一笔交易可有多个事件。核心字段：trade_event_no(事件号)、trade_no(交易号)、event_type(事件类型)、biz_type/biz_action(业务类型/动作)、amount/real_amount(金额)、env(环境)、partner_id/payer/payee(合作方/付款/收款方)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_trade_detail_collect_gmv": {
+      "name": "收单维度支付数据表",
+      "description": "收单维度的支付数据，已过滤重复支付，凯凯清洗的原始表",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.dm_all_pay_recharge_22_now": {
+      "name": "支付充值BI原始表",
+      "description": "PMV+GMV的BI大盘原始表，2024年后数据完整",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.pay_channel_order_items_cost": {
+      "name": "渠道支付成本表",
+      "description": "渠道支付成本业务数据，记录各渠道的支付成本明细",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.union_paid_shop_cert_info": {
+      "name": "付费商户认证信息表",
+      "description": "店铺当前有效的认证信息，认证状态为4(认证通过)且是付费商家",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.kk_shop_new_cert_info": {
+      "name": "店铺认证信息表",
+      "description": "店铺当前有效的认证信息，认证状态为4(认证通过)，不关联付费数据",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.wx_cert_un_finish_info": {
+      "name": "微信未实名认证表",
+      "description": "未实名的数据，即未实名的子商户号数据",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.valid_ucert_cert_info": {
+      "name": "有效认证信息表",
+      "description": "有效的认证信息，包含4(认证通过)、99(失效)的数据，不包括97(历史认证)",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.valid_ucert_category_qual_cert_info": {
+      "name": "商家认证类目原始表",
+      "description": "商家认证的类目信息原始数据",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.kk_shop_category_qualification": {
+      "name": "商家认证类目合并表",
+      "description": "商家认证类目信息的合并后数据",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.all_history_ucert_cert_info": {
+      "name": "全量认证数据表",
+      "description": "有效的认证信息，包含4(认证通过)、97(历史认证)、99(失效)的数据，所有有效的unified_cert_id维度的认证数据，类似认证快照信息",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dm_pay.pay_merchant_pay_config": {
+      "name": "子商户号配置表",
+      "description": "商家子商户数据配置表，包含fee_type(费率类型)、type(子商户号类型)、is_real_name(是否实名)等字段",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dw.dim_team_biz_extend": {
+      "name": "店铺扩展信息维度表",
+      "description": "店铺核心维度表(按日分区par='${DP_1_DAYS_AGO_Ymd}')，包含kdt_id、team_name(店铺名)、hq_kdt_id(总店ID)、payment_client_id、service_staff_name(服务人员)、is_paid(是否付费,1付费)、team_property(店铺属性,0正式)、team_type(店铺类型)、shop_topic(店铺主题)、shop_role(店铺角色,0单店/1总部/2分店)、created_time(开店时间)等字段。业务线映射：team_type=0微商城/6美业/7零售/1微小店/17爱逛小店/19旺小店/20爱逛CPS。付费商家过滤：is_paid=1 and team_property=0",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_funds_user": {
+      "name": "资金用户",
+      "description": "支付系统的用户/商户主体信息。核心字段：user_no(用户编号)、target_id(关联目标ID)、type/role(类型/角色)、account_type/authentication_type(账户/认证类型)、parent_user_no/out_user_no(父用户号/外部用户号)。pay_dm_data工作流上游表，用于team_product_info映射。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dev.xinyi_merchant_bank_pay_config_for_union_report_status_col": {
+      "name": "银联子商户报备表",
+      "description": "银联子商户报备状态数据",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dev.xinyi_merchant_bank_pay_config_for_net_report_status_col": {
+      "name": "网联子商户报备表",
+      "description": "网联子商户报备状态数据",
+      "updated_at": "2026-03-07 23:30:00"
+    },
+    "dw.dwd_crm_gmv_level_d": {
+      "name": "店铺GMV层级表",
+      "description": "店铺GMV层级数据，包含kdt_id、gmv_level等字段，按日分区。可通过kdt_id关联dim_team_biz_extend查询服务归属",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_extension_point_config": {
+      "name": "支付扩展点配置表",
+      "description": "支付渠道扩展点配置，包含mch_id(商户号)、pay_channel_api(支付渠道API)、pay_channel(支付渠道)等字段。常用于查询商户的支付渠道配置，可通过mch_id关联pay_funds_user转换kdt_id",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_cc_bank_card_binding_list": {
+      "name": "C端银行卡绑卡列表",
+      "description": "C端用户银行卡绑卡记录，包含bind_open_id(绑卡流水号)、card_no_hash(卡号哈希)、is_unbind(是否解绑,0未解绑)、is_realname_binding(是否实名绑卡)、mch_id、sub_mch_id、member_id等字段。通过card_no_hash关联pay_cc_bank_card_info获取银行卡明文信息。统计绑卡数量时用count(distinct card_no_hash)",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_cc_bank_card_info": {
+      "name": "银行卡信息表(加密)",
+      "description": "银行卡核心信息表，所有敏感字段已加密，需用udf.pay_decrypt_dft解密。包含card_no_hash(卡号哈希,关联绑卡表)、bank_card_no(加密卡号)、holder_name(加密持卡人)、holder_id_no(加密身份证)、holder_reserved_phone(加密手机号)、card_bin、org_name(发卡行)、org_code、card_type等字段。需用hive引擎运行解密查询",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_cc_bank_info": {
+      "name": "银行信息维度表",
+      "description": "银行基础信息维度表，包含bank_code(银行编码)、bank_name(银行全称)、bank_short_name(银行简称)、org_name(机构名)、bank_level(银行级别)等字段。常用于通过bank_code关联出金表获取银行名称",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dm_pay.all_pay_succ_payment_detail": {
+      "name": "全量支付成功明细表",
+      "description": "全量支付成功的支付明细数据，包含order_no(E单号)、trade_no(支付单号)、inner_transaction_number(内部交易号)、payee_id、amount、pay_channel_api、channel_name、channel_no、bank_card_no、external_mch_id等字段。可通过bank_card_no查询用户交易记录，是支付交易查询的常用表",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_new_pay_order": {
+      "name": "新收单支付订单表",
+      "description": "新收单系统的支付订单原始表，包含kdt_id、order_no、trade_no、total_fee、pay_method、outer_transaction_number等字段。extra字段中含BANK_CARD_WATER_NO(银行卡绑卡流水号)，可通过regexp_extract提取。与pay_order为新老收单的关系",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_order": {
+      "name": "旧收单支付订单表",
+      "description": "旧收单系统的支付订单原始表，字段结构与pay_new_pay_order基本一致，包含kdt_id、order_no、trade_no、total_fee、pay_method等字段。extra字段中含BANK_CARD_WATER_NO。查询交易记录时需同时union pay_new_pay_order和pay_order",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_pc_payment_voucher": {
+      "name": "凭证支付/充值表",
+      "description": "线下凭证支付和充值记录表，包含payment_voucher_no、trade_no、acct_no(商户号)、amount(金额,单位分)、account_no(加密银行卡号)、account_name(加密户名)、state(2已完成)、used(1凭证充值/6商业化订购/7人工冻结)、pay_time、audit_time、outer_order_id等字段。敏感字段需用udf.pay_decrypt_dft解密",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_withdraw_channel_unionpay": {
+      "name": "出金渠道银联表",
+      "description": "出金渠道层银联数据表，包含trans_no(交易流水号)、mer_id(商户号)、payee_acct_no(加密收款卡号)、payee_acct_name(加密收款户名)、payee_acct_type(1对公/2对私)、payee_bank_no(银行编码)、trans_amount(金额)等字段。加密字段有两种后缀：'&SM4-CJ-ENCRYPT'(SM4加密)和'-CJ-ENCRYPT'(AES加密)，解密方式不同。通过trans_no关联pay_withdraw_channel_trans_flow_main",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_withdraw_channel_trans_flow_main": {
+      "name": "出金渠道流水主表(ODS)",
+      "description": "出金渠道流水主表ODS层，包含trans_no(交易流水号)、trans_status(0已受理/1成功/2失败/3等待受理/4处理中/5异常转人工)、trans_amount(金额)、mer_id(商户号)、channel_type(1银联/2网联)、upstream_code(ASSETCENTER=B端提现/PAYMENT_WITHDRAW=C端零钱提现/TRANSFER=转账/RETRY_REFUND=二次退款)、netpay_txn_no(网联单号)、created_at、end_at等字段。通过trans_no关联pay_withdraw_channel_unionpay获取银行卡信息",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_tc_trade": {
+      "name": "交易主表",
+      "description": "支付交易中心交易主记录。一笔交易一条记录。核心字段：trade_no(交易号)、biz_prod/biz_mode(业务产品/模式)、total_amount/real_pay_amount/discount_amount(总额/实付/优惠)、refund_amount(退款额)、real_settle_amount/settled_amount(结算额)、shared_amount/sharing_amount(分账额)、partner_id(合作方)、payer/payee(付款方/收款方)、settle_state(结算状态)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_pc_transfer_detail": {
+      "name": "转账明细表",
+      "description": "转账业务明细表，包含transfer_detail_no(转账明细号)、trade_no、amount、payer_id、payee_id、biz_context(JSON含bizAction:WITHDRAW/WITHDRAW_TO_CARD/RECHARGE等)、state(3成功)、extra(含CONTRACT_TYPE)、payer(JSON含shopPrincipalName)、payee(JSON含acctName加密)等字段。用于查询提现到银行卡、转账到卡等出金数据，biz_context.bizAction区分业务类型",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_new_funds_trading": {
+      "name": "旧资金交易表",
+      "description": "旧资金交易系统的交易记录表，包含water_no、acct_no、kdt_id、type(如1006保证金)、biz_action(PAY/RECHARGE等)、state(3/100为成功)、money、in_out、partner_id等字段。用于保证金充值等历史数据查询",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_fee_bill_trade": {
+      "name": "手续费账单交易",
+      "description": "每笔交易的手续费计算明细。核心字段：fee_no(手续费编号)、mch_id/partner_id(商户/合作方)、pack_no/pack_pd_code/pack_ratio(套餐编号/产品/费率)、biz_pd_code/biz_source/biz_no(业务产品/来源/号)、biz_amount/fee_amount/fee_amount_subsidy(业务金额/手续费/补贴)、in_out(收支方向)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_prodtrans_month": {
+      "name": "渠道产品帐月统计表",
+      "description": "认证相关渠道产品帐的月度统计表，包含cumulate_code(统计编码)、stat_time(统计月份如202202)、total_count(总笔数)、amount(总金额)、reverse_count(冲正笔数)等字段。通过cumulate_code查询特定渠道产品帐使用信息",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dw.dws_pay_trade_payment_detail": {
+      "name": "支付交易明细宽表",
+      "description": "支付交易明细的DWS层宽表，合并了交易和支付信息，包含payment_detail_no(三方商户订单号)、external_payment_no(三方支付流水号)、trade_no、outer_trade_no(E单号)、pay_channel_api、biz_prod、biz_action、pay_amount等字段。常用于通过三方支付凭证(微信/支付宝单号)反查有赞支付单。支付宝单号可能需要用substring截断前2位查询",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dm_pay.pay_channel_order_record_shadow": {
+      "name": "平安付渠道订单记录表",
+      "description": "平安付渠道的订单记录表(影子表)，包含trade_no、out_trade_no、payment_detail_no、pay_channel_api、pay_medium(WXPAY/ALIPAY)、pay_medium_trade_no(三方支付流水号,微信42开头)、pay_medium_out_no(三方商户订单号,2开头,支付结果二维码下方的号码)、acquirer_mch_id、acquirer_sub_mch_id等字段。离线表数据还清洗了一份到RDS中的pay_channel_archive_library.pay_channel_order_record(TiDB表)",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dw.dim_team_cert_info": {
+      "name": "店铺认证信息维度表",
+      "description": "店铺认证信息维度表，包含kdt_id、mch_id(商户号)、enterprise_name(企业名称)、legal_representative_name(法人姓名)、main_cert_type(主体认证类型)、organization_type(组织类型)、credit_credentials_no(统一社会信用代码)、cert_status(认证状态)、unified_cert_id等字段。常用于关联凭证充值等数据查询商户认证主体信息",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_courier_agent_pay_apply": {
+      "name": "转账到银行卡申请表",
+      "description": "转账到银行卡的申请记录表(如骑手代付)，包含user_no(商户号)、biz_type(1银行卡转账)、money(金额)、fee(手续费)、status(31成功)、bank_card_no、payee_name、arrive_type、partner_id等字段。用于统计每月转账到银行卡的笔数、金额、商户数",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_prior_trade": {
+      "name": "先用后付主交易表",
+      "description": "先用后付业务的主交易表，包含trade_no、out_trade_no、state、total_amount、payee_id、buyer_id、extra(JSON含KDT_ID/ITEM_NAME/KDT_NAME)、credit_pay_time(信用支付时间)、real_pay_time(实际付款时间)等字段",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_prior_pay_trade": {
+      "name": "先用后付支付交易表",
+      "description": "先用后付的支付交易表，包含trade_no、pay_out_trade_no(支付外部单号)、pay_trade_no(支付交易号)、credit_channel(信用渠道)、channel_order_no等字段。通过pay_out_trade_no关联pay_t_pay_record查询FLD单号对应的交易信息",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_t_pay_record": {
+      "name": "支付记录(老表)",
+      "description": "老版支付系统的支付记录。核心字段：pay_mode/channel_code(支付方式/渠道)、command_type(指令类型)、inner_order_id/outer_order_id(内部/外部订单号)、debit_credit(借贷方向)。与pay_channel_pay_order对应历史数据。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dev.t_pay_external_order_no_mapping": {
+      "name": "外部单号映射表",
+      "description": "外部单号与内部支付明细号的映射表，包含external_order_no(外部订单号如FLD单号)、payment_detail_no(支付明细号)等字段。注意该表没有ODS同步，查询前需重新导入。用于FLD单号与支付单号的互转",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_funds_inout_log": {
+      "name": "账务收支明细表",
+      "description": "账务系统的收支明细日志表(分区表)，包含acct_no(账户号)、kdt_id、water_no(流水号)、voucher_id(凭证号)、money(金额)、in_out(收支方向)、change_type(变更类型)、balance(余额)、accounting_date(记账日期)、par(分区)等字段。数据量较大，建议增量导入hive查询，需带sharding_id条件",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "dev.all_pay_succ_trade_detail": {
+      "name": "全量支付成功交易明细表",
+      "description": "全量支付成功的交易明细数据(dev临时表)，包含biz_action(PAY)、state(SUCCESS)、real_pay_amount(实付金额)、partner_id(业务线ID)、created_at等字段。用于统计各业务线每天的GMV，对应工作流998",
+      "updated_at": "2026-03-08 10:00:00"
+    },
+    "ods.pay_funds_institution_voucher": {
+      "name": "资金机构凭证",
+      "description": "多渠道分账资金对账用。记录机构侧凭证信息，包含机构主体(ins_subject)、交易流水号(txn_seq_no)、金额(amount)、手续费(trade_fees)、账户信息(acct_nbr/acct_name)、交易时间等。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "ods.pay_funds_institution_bill_flow": {
+      "name": "资金机构账单流水",
+      "description": "多渠道分账资金对账用。记录机构侧账单流水，包含机构主体(ins_subject)、有赞商户号(yz_mch_id)、关联商户号(rel_yz_mch_id)、金额、收支类型(in_out_type)、交易类型(trans_type)、业务类型(biz_type)。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "ods.pay_funds_third_allocate_log": {
+      "name": "三方调拨明细",
+      "description": "分账调拨明细表。allocate_type区分sharing(分账)/sharing_cancel(分账撤销)，记录调拨金额(allocate_amt)、交易金额(trade_amt)、状态(status)、收单机构(acquire_inst)、存管机构(custody_inst)等。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "ods.pay_funds_op_allocate_log": {
+      "name": "调拨操作任务",
+      "description": "分账调拨操作任务表。记录调拨流水号、调拨类型、执行状态、重试次数、来源环境(source_env)等。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "dm_pay.profit_sharing_bills_check_error_detail": {
+      "name": "分账对账差异明细",
+      "description": "分账对账差异明细，记录对账中发现的差异数据。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "dm_pay.profit_sharing_recon_result": {
+      "name": "分账对账结果",
+      "description": "分账对账结果汇总表。",
+      "updated_at": "2026-03-08 00:24:32"
+    },
+    "ods.pay_channel_pay_order": {
+      "name": "渠道支付订单",
+      "description": "直接与外部支付渠道交互的订单记录。核心字段：pay_channel_no(渠道支付号)、payment_detail_no(关联支付明细)、pay_channel_api/channel_code/account_code(渠道API/编码/账户)、external_channel_no(外部渠道流水号)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_check_channel_bill": {
+      "name": "渠道对账单",
+      "description": "从外部支付渠道拉取的对账单，用于核对内部数据。分区表(par)。核心字段：channel_order_no/channel_trx_no(渠道订单号/交易号)、channel_type(渠道类型)、channel_trade_amount/channel_refund_amount/channel_fee(交易额/退款额/渠道手续费)、bill_date(账单日)、merchant_no/sub_merchant_no(商户号/子商户号)、is_check(是否已对账)。pay_dm_data工作流上游表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_settle_fund_detail": {
+      "name": "结算资金明细",
+      "description": "商户结算的每笔资金流水明细。核心字段：fund_detail_no/fee_no(资金明细号/手续费号)、kdt_id(店铺ID)、order_no(订单号)、fee_type/fee_property(费用类型/属性)、amount(金额)、inst(机构)、settle_time/settle_model/settle_channel(结算时间/模式/渠道)。pay_dm_data工作流上游表，用于分账月统计。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_settle_fee": {
+      "name": "结算手续费",
+      "description": "结算环节的手续费记录。核心字段：fee_no(手续费编号)、kdt_id(店铺ID)、order_no(订单号)、amount(手续费金额)、biz_scenes(业务场景)、fee_mode(费用模式)。pay_dm_data工作流上游表，用于分账月统计。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_channel_type": {
+      "name": "渠道类型维度",
+      "description": "渠道类型映射表。channel_type_code→channel_type_desc(中文名如微信/支付宝)、compatible_code(兼容码)。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_env_info": {
+      "name": "环境维度",
+      "description": "环境映射表。pay_env→pay_env_name。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_tool_pay_method": {
+      "name": "支付工具/方式维度",
+      "description": "支付工具方式映射表。pay_channel_api→pay_tool_name(支付工具名)+pay_method_name(支付方式名)+if_control_money(是否管控资金)。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_partner_id_info": {
+      "name": "合作方维度",
+      "description": "合作方ID→名称映射。partner_id→partner_name。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.pay_biz_prod_enum": {
+      "name": "业务产品枚举",
+      "description": "业务产品码→名称+分组映射。biz_prod→biz_prod_name+group。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "dm_pay.yz_to_fin_shop_type_for_pay_pmv": {
+      "name": "店铺类型维度(PMV)",
+      "description": "店铺维度表，用于PMV统计。kdt_id→team_name(店铺名)、hq_kdt_id(总部ID)、pay_mch_type(商户类型)、bu(业务部门)、product(业务线:微商城/零售/餐饮等)、is_paid(是否付费)、team_property(店铺属性:正常/测试/公益)、open_status(经营状态)。pay_dm_data工作流维度表。",
+      "updated_at": "2026-03-08 00:31:36"
+    },
+    "ods.pay_pc_refund_detail": {
+      "name": "退款明细表",
+      "description": "支付通道层退款明细记录。核心字段：refund_detail_no(退款明细号)、refund_no(退款单号)、trade_no(交易号，关联pay_tc_trade.trade_no)、mch_id(商户号)、amount(退款金额)、pay_channel_api(支付渠道API码)、currency(币种)、extra(扩展信息JSON，含payTradeTime支付时间、CARDVOUCHER_REFUND_SPLIT_INFO储值卡退款拆分)。state>1为有效退款。RDS表名同名，conn-id 20。",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "ods.pay_pc_refund_contract": {
+      "name": "退款合约表",
+      "description": "退款合约记录，一笔退款一条合约。核心字段：refund_no(退款单号，关联refund_detail)、outer_trade_no(外部交易号即order_no)、outer_refund_no(外部退款号)、refund_mode(退款模式，0=原路退)、extra(含BEFORE_SETTLED_REFUND标识是否结算前退款)。RDS表名同名，conn-id 20。",
+      "updated_at": "2026-03-08 22:15:04"
+    },
+    "ods.pay_cardvoucher_delivery_trade_log": {
+      "name": "提货卡交易日志",
+      "description": "储值卡/提货卡交易明细日志，仅储值卡场景使用。核心字段：unique_request_id(唯一请求ID，关联payment_detail_no或refund_detail_no)、operate_principal_amount(操作本金)、operate_bonus_amount(操作赠送金)。RDS表名: cardvoucher_delivery_trade_log(无pay_前缀)，conn-id 15。",
+      "updated_at": "2026-03-08 22:15:04"
+    }
+  }
+}

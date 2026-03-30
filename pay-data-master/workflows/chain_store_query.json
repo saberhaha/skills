@@ -1,0 +1,55 @@
+{
+  "_meta": {
+    "description": "查询连锁店下的所有子店",
+    "version": "1.0",
+    "created_at": "2026-03-11"
+  },
+  "workflow": {
+    "id": "chain_store_query",
+    "name": "连锁店子店查询",
+    "description": "根据总部商户号查询连锁店下所有子店的商户号",
+    "pattern_type": "层级关系查询",
+    "business_scenario": "查询某个连锁品牌下有哪些分店",
+    "source_table": "dm_pay.pay_cc_org_relation",
+    "input": {
+      "root_no": {
+        "description": "总部商户号",
+        "required": true,
+        "example": "231123101902000000"
+      }
+    },
+    "output": {
+      "fields": ["node_no"],
+      "description": "返回所有子店的商户号列表"
+    },
+    "sql_template": "SELECT node_no FROM dm_pay.pay_cc_org_relation WHERE root_no = '{{root_no}}' AND org_type = 'MERCHANT_ORG_RELATION'",
+    "key_concepts": {
+      "org_type": {
+        "MERCHANT_ORG_RELATION": "连锁关系",
+        "MERCHANT_SERVICE_RELATION": "开店关系"
+      },
+      "root_no": "总部商户号",
+      "node_no": "子店商户号，单店时=root_no",
+      "单店判断": "单店（非连锁）时 node_no = root_no"
+    },
+    "variants": [
+      {
+        "name": "查询连锁店所有子店",
+        "sql_template": "SELECT node_no FROM dm_pay.pay_cc_org_relation WHERE root_no = '{{root_no}}' AND org_type = 'MERCHANT_ORG_RELATION'"
+      },
+      {
+        "name": "判断是否为单店",
+        "sql_template": "SELECT node_no, root_no, CASE WHEN node_no = root_no THEN '单店' ELSE '连锁店' END AS shop_type FROM dm_pay.pay_cc_org_relation WHERE node_no = '{{mch_no}}' AND org_type = 'MERCHANT_ORG_RELATION'"
+      },
+      {
+        "name": "查询子店所属总部",
+        "sql_template": "SELECT root_no FROM dm_pay.pay_cc_org_relation WHERE node_no = '{{node_no}}' AND org_type = 'MERCHANT_ORG_RELATION'"
+      }
+    ],
+    "typical_questions": [
+      "查询连锁店231123101902000000下有哪些子店",
+      "这个商户号是单店还是连锁店",
+      "查询子店所属的总部"
+    ]
+  }
+}

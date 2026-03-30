@@ -1,0 +1,33 @@
+{
+  "id": "large_payment_refund_failed",
+  "name": "大额支付退款失败订单查询",
+  "description": "查询大额支付工具(pay_channel_api=90200001, channel_name=185)的退款失败订单(state=4)。由于JOIN大表在Presto引擎会超内存，采用单表查询+手动关联方式。",
+  "tags": ["大额支付", "退款", "退款失败"],
+  "tables": ["ods.pay_pc_refund_detail", "ods.pay_tc_trade", "ods.pay_pc_payment_detail"],
+  "params": [
+    {"name": "start_time", "description": "开始时间，格式如 2026-03-01 00:00:00", "required": true},
+    {"name": "end_time", "description": "结束时间，格式如 2026-03-12 00:00:00", "required": false}
+  ],
+  "steps": [
+    {
+      "name": "step1_refund_detail",
+      "description": "查询退款明细（ods.pay_pc_refund_detail）",
+      "sql": "SELECT \n    payment_detail_no,\n    refund_detail_no,\n    trade_no,\n    amount / 100 AS refundAmount_yuan,\n    state,\n    error_reason,\n    created_at\nFROM ods.pay_pc_refund_detail\nWHERE pay_channel_api = '90200001'\n    AND channel_name = '185'\n    AND state = 4\n    AND created_at >= '{{start_time}}'\n    AND created_at < '{{end_time}}'\nORDER BY amount DESC\nLIMIT 1000"
+    },
+
+    {
+      "name": "step2_trade_info",
+      "description": "根据trade_no查询交易信息（ods.pay_tc_trade）获取outer_trade_no和payee_id",
+      "sql": "SELECT trade_no, outer_trade_no, payee_id FROM ods.pay_tc_trade WHERE trade_no IN ({{trade_no_list}})"
+    }
+  ,
+    {
+      "name": "step3_payment_info",
+      "description": "根据payment_detail_no查询支付信息（ods.pay_pc_payment_detail）获取external_payment_no和payAmount",
+      "sql": "SELECT payment_detail_no, external_payment_no, amount / 100 AS payAmount_yuan FROM ods.pay_pc_payment_detail WHERE payment_detail_no IN ({{payment_detail_no_list}})"
+    }
+  ],
+  "note": "由于单表查询返回结果有限，完整数据需要分三步查询：1)查退款明细 2)根据trade_no查交易信息 3)根据payment_detail_no查支付信息。最后手动合并结果。",
+  "created_at": "2026-03-12T11:30:00+08:00",
+  "author": "鑫一(黄振鑫) + 宽哥(李修宽)"
+}

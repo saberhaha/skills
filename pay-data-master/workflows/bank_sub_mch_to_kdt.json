@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "description": "根据银网联子商户号查询店铺kdt_id",
+    "version": "1.1",
+    "created_at": "2026-03-11",
+    "updated_at": "2026-03-11"
+  },
+  "workflow": {
+    "id": "bank_sub_mch_to_kdt",
+    "name": "银网联子商户号转店铺kdt_id",
+    "description": "根据银网联子商户号(sub_mch_id或customer_sub_mch_id)查询对应的店铺kdt_id",
+    "pattern_type": "ID转换查询",
+    "business_scenario": "需求方提供银网联子商户号，需要找到对应的店铺",
+    "source_tables": ["ods.pay_merchant_bank_pay_config", "ods.pay_funds_user"],
+    "input": {
+      "sub_mch_id": {
+        "description": "银网联子商户号（微信/支付宝子商户号）",
+        "required": true,
+        "example": "A19111116252634"
+      },
+      "include_unbind": {
+        "description": "是否包含已解绑的记录，默认false（只查当前有效绑定）",
+        "required": false,
+        "default": false
+      }
+    },
+    "output": {
+      "fields": ["target_id", "sub_mch_id", "customer_sub_mch_id", "unbind_date"],
+      "description": "返回店铺kdt_id(target_id)和匹配的子商户号，unbind_date=0表示当前有效"
+    },
+    "variants": [
+      {
+        "name": "查询当前有效绑定",
+        "description": "只查询unbind_date=0的当前有效绑定关系",
+        "sql_template": "SELECT t2.target_id, t1.sub_mch_id, t1.customer_sub_mch_id, t1.unbind_date FROM ods.pay_merchant_bank_pay_config t1 LEFT JOIN ods.pay_funds_user t2 ON t1.mch_id = t2.user_no WHERE (t1.sub_mch_id = '{{sub_mch_id}}' OR t1.customer_sub_mch_id = '{{sub_mch_id}}') AND t1.unbind_date = 0"
+      },
+      {
+        "name": "查询历史绑定（含已解绑）",
+        "description": "查询所有绑定记录，包括已解绑的",
+        "sql_template": "SELECT t2.target_id, t1.sub_mch_id, t1.customer_sub_mch_id, t1.unbind_date FROM ods.pay_merchant_bank_pay_config t1 LEFT JOIN ods.pay_funds_user t2 ON t1.mch_id = t2.user_no WHERE t1.sub_mch_id = '{{sub_mch_id}}' OR t1.customer_sub_mch_id = '{{sub_mch_id}}'"
+      }
+    ],
+    "key_concepts": {
+      "sub_mch_id": "微信/支付宝子商户号（银网联分配）",
+      "customer_sub_mch_id": "客户子商户号（银网联分配）",
+      "mch_id": "商户号，等同于user_no（有赞商户号）",
+      "target_id": "通过pay_funds_user转换后的kdt_id",
+      "unbind_date": "解绑时间戳，=0表示当前有效绑定，非0表示已解绑（通常因店铺过户导致）",
+      "pay_merchant_bank_pay_config": "银网联子商户号配置表",
+      "pay_funds_user": "ID转换桥接表，mch_id=user_no关联"
+    },
+    "binding_rules": {
+      "one_to_one": "一个有赞商户号在一个时刻内只能对应一个银网联子商户号",
+      "ownership_change": "店铺过户后unbind_date更新为解绑时间戳，原绑定失效"
+    },
+    "table_relationships": {
+      "ods.pay_merchant_bank_pay_config.mch_id": "关联 ods.pay_funds_user.user_no",
+      "ods.pay_funds_user.target_id": "转换后得到 kdt_id"
+    },
+    "join_logic": {
+      "description": "通过 mch_id = user_no 关联两张表",
+      "left_table": "ods.pay_merchant_bank_pay_config (子商户配置)",
+      "right_table": "ods.pay_funds_user (ID转换表)",
+      "join_condition": "t1.mch_id = t2.user_no"
+    },
+    "typical_questions": [
+      "子商户号A19111116252634对应哪个店铺",
+      "根据银网联子商户号查kdt_id",
+      "查询微信子商户号对应的店铺",
+      "这个子商户号现在绑定的店铺是哪个"
+    ]
+  }
+}

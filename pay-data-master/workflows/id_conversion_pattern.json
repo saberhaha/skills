@@ -1,0 +1,45 @@
+{
+  "_meta": {
+    "description": "ID转换模式 - kdt_id与user_no互转",
+    "version": "1.0"
+  },
+  "workflow": {
+    "id": "id_conversion_pattern",
+    "name": "ID转换模式(kdt_id ↔ user_no)",
+    "description": "当需求方给kdt_id但查询表只有user_no/payee_id时，需要通过ods.pay_funds_user做ID转换",
+    "pattern_type": "常用转换模式",
+    "bridge_table": "ods.pay_funds_user",
+    "key_rules": {
+      "type=10": "表示 user_no ↔ kdt_id 的映射关系",
+      "user_no": "有赞商户号",
+      "target_id": "type=10时等于kdt_id",
+      "payee_id": "收款方ID，等同于user_no"
+    },
+    "conversion_directions": [
+      {
+        "direction": "user_no → kdt_id",
+        "description": "已知user_no，查询对应的kdt_id",
+        "sql": "SELECT user_no, target_id as kdt_id\nFROM ods.pay_funds_user\nWHERE type = 10 AND user_no IN (...)"
+      },
+      {
+        "direction": "kdt_id → user_no",
+        "description": "已知kdt_id，查询对应的user_no",
+        "sql": "SELECT user_no, target_id as kdt_id\nFROM ods.pay_funds_user\nWHERE type = 10 AND target_id IN (...)"
+      }
+    ],
+    "typical_scenario": {
+      "problem": "需求方给kdt_id列表，但需要查询的表只有payee_id字段",
+      "solution": [
+        "Step 1: 从ods.pay_funds_user把kdt_id转成user_no",
+        "Step 2: 用user_no与目标表的payee_id关联",
+        "Step 3: 获取需要的信息"
+      ],
+      "example_sql": "-- Step 1: 获取user_no映射\nCREATE TABLE temp_id_mapping AS\nSELECT user_no, target_id as kdt_id\nFROM ods.pay_funds_user\nWHERE type = 10 AND target_id IN (kdt_id_list);\n\n-- Step 2: 关联查询\nSELECT a.kdt_id, b.payee_id, b.gmv_amount\nFROM temp_id_mapping a\nJOIN dev.dm_all_pay_recharge_22_now b ON a.user_no = b.payee_id;"
+    },
+    "analogy": {
+      "concept": "user_no vs kdt_id 类似 驾照号 vs 身份证号",
+      "meaning": "两个ID都指向同一个实体（商户/店铺），但编号规则不同，不能直接相等",
+      "solution": "需要一个关系表来记录两者的对应关系，这个表就是ods.pay_funds_user"
+    }
+  }
+}

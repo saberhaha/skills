@@ -1,0 +1,23 @@
+# ~/.openclaw/skills/daily-review-feishu/config.yml
+# 首次安装请参考 INSTALL.md 完成配置
+# 用户称呼从 agent workspace 根目录下的 USER.md 读取，无需在此配置
+
+# 触发时间（修改后需重新注册 cron）
+schedule:
+  daily: "50 23 * * *"         # 日总结
+  weekly: "10 0 * * 1"         # 周复盘
+
+# 飞书文件夹 token
+storage:
+  backend: feishu
+  daily_summary_folder_token: W4CufpHOll9UKcd6g4ycg5PNnwg   # 每日总结
+  weekly_review_folder_token: QbKAfs8Vsl3vCHdDKrBcgLu5nBc   # 每周复盘
+  root_folder_token: Wn0CfpaWfl4oe8dkMaLc91cQnEf             # 会点支付工作目录（直接调飞书 API 时使用）
+  doc_lib_folder_token: CnIFfuRPmlifEydSzhMcVRUwnkh          # AI 助手文档库（直接调飞书 API 时使用）
+  domain: https://qima.feishu.cn
+
+# 周评分 Bitable（enabled: false 则跳过第八步）
+score_table:
+  enabled: true
+  app_token: N1shb3MAOanKrlsXW65csIy8nOe
+  table_id: tblJtiGdXId7CoVd

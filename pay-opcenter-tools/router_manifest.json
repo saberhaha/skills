@@ -1,0 +1,1632 @@
+{
+  "domains": [
+    {
+      "name": "channel",
+      "label": "渠道域",
+      "description": "涵盖路由规则管理、路由渠道管理、渠道账户管理、通讯模板/链/关联/项/角色管理、提现渠道管理、切路由配置、商户信息配置、微信子商户管理等渠道全链路运维功能",
+      "skills": [
+        {
+          "name": "query_route_rule",
+          "description": "查询路由规则列表（v3，支持按灰度码、支付方式api筛选）",
+          "entry": "scripts/渠道域/query_route_rule.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_route_channel",
+          "description": "查询路由渠道列表（v3，支持按支付模式、支付工具编码、渠道机构筛选）",
+          "entry": "scripts/渠道域/query_route_channel.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_channel_account",
+          "description": "查询渠道账户列表（v3，支持按支付工具编码、渠道机构、合作方id、渠道编码筛选）",
+          "entry": "scripts/渠道域/query_channel_account.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_comm_template",
+          "description": "查询通讯模板列表（v3，支持按模板编码、通信场景、可用状态筛选）",
+          "entry": "scripts/渠道域/query_comm_template.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_comm_chain",
+          "description": "查询通讯链列表（v3，支持按通信链编码、灰度编码、可用状态筛选）",
+          "entry": "scripts/渠道域/query_comm_chain.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_comm_template_switch",
+          "description": "查询通讯模板开关列表（v3，支持按模板编码、关系编码、状态、环境筛选）",
+          "entry": "scripts/渠道域/query_comm_template_switch.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_comm_relation",
+          "description": "查询通讯关联列表（v3，支持按关系编码、发送方、接收方、状态筛选）",
+          "entry": "scripts/渠道域/query_comm_relation.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_comm_item",
+          "description": "查询通讯项列表（v3，支持按配置项类型、key、编码、状态筛选）",
+          "entry": "scripts/渠道域/query_comm_item.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_comm_actor",
+          "description": "查询通讯角色列表（v3，支持按角色类型、角色编码、状态筛选）",
+          "entry": "scripts/渠道域/query_comm_actor.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_withdraw_channel",
+          "description": "查询提现渠道列表（v2，支持按渠道名称、渠道类型筛选，默认类型=出金渠道）",
+          "entry": "scripts/渠道域/query_withdraw_channel.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_switch_route",
+          "description": "查询切路由配置列表（v1，支持按合作商户、渠道编码筛选）",
+          "entry": "scripts/渠道域/query_switch_route.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_merchant_info",
+          "description": "查询商户信息配置列表（v1，支持按终端序列号筛选）",
+          "entry": "scripts/渠道域/query_merchant_info.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_wechat_sub_mch",
+          "description": "查询微信子商户配置（v1，需提供服务商标识proxyId，支持按子商户标识subMchId筛选，返回支付目录及绑定关系）",
+          "entry": "scripts/渠道域/query_wechat_sub_mch.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_withdraw_status",
+          "description": "查询提现状态详情（v1，需提供提现单号withdrawNo，返回各渠道处理状态/耗时/报文，附辅助接口：前置机状态查询）",
+          "entry": "scripts/渠道域/query_withdraw_status.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "permission",
+      "label": "权限域",
+      "description": "涵盖权限列表、角色列表/详情、分组列表/详情、用户列表/详情及权限视图等系统权限调度管理相关的核心业务查询",
+      "skills": [
+        {
+          "name": "query_permission_list",
+          "description": "查询权限列表（v3，支持按应用名称、权限类型、状态、权限名称、权限标识筛选）",
+          "entry": "scripts/权限域/query_permission_list.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_permission_detail",
+          "description": "查询权限详情（v3，支持按权限ID筛选）",
+          "entry": "scripts/权限域/query_permission_detail.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_role_list",
+          "description": "查询角色列表（v3，支持按应用名称、角色名称、角色描述、状态、用户名筛选）",
+          "entry": "scripts/权限域/query_role_list.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_role_detail",
+          "description": "查询角色详情（v3，支持按角色ID筛选）",
+          "entry": "scripts/权限域/query_role_detail.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_group_list",
+          "description": "查询分组列表（v3，支持按应用名称、分组名称、状态筛选）",
+          "entry": "scripts/权限域/query_group_list.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_group_detail",
+          "description": "查询分组详情（v3，支持按分组ID筛选）",
+          "entry": "scripts/权限域/query_group_detail.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_user_list",
+          "description": "查询用户列表（v3，支持按邮箱、用户名筛选）",
+          "entry": "scripts/权限域/query_user_list.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_user_detail",
+          "description": "查询用户详情（v3，支持按用户名筛选）",
+          "entry": "scripts/权限域/query_user_detail.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_permission_view",
+          "description": "查询权限视图（v3，支持按用户名筛选）",
+          "entry": "scripts/权限域/query_permission_view.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_permission_view_v1",
+          "description": "查询权限视图（v1，无需传参，自动取当前登录用户Session，返回各系统角色与权限）",
+          "entry": "scripts/权限域/query_permission_view_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_permission_config_auth",
+          "description": "查询权限配置-权限管理列表（v1，支持按系统名称、权限描述筛选）",
+          "entry": "scripts/权限域/query_permission_config_auth.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_permission_config_user",
+          "description": "查询权限配置-用户管理列表（v1，支持按用户名筛选）",
+          "entry": "scripts/权限域/query_permission_config_user.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_permission_config_role",
+          "description": "查询权限配置-角色管理列表（v1，支持按系统名称、角色描述筛选）",
+          "entry": "scripts/权限域/query_permission_config_role.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_permission_config_resource",
+          "description": "查询权限配置-资源管理列表（v1，支持按系统名称、资源名称、资源描述、资源类型筛选）",
+          "entry": "scripts/权限域/query_permission_config_resource.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "account",
+      "label": "账务域",
+      "description": "涵盖资金出入、调账、备付金核对、跨境结算等账务相关查询",
+      "skills": [
+        {
+          "name": "query_inoutlog_v1",
+          "description": "v1 出入账日志查询（包含账户收支明细和会计明细），按订单号",
+          "entry": "账务域/query_inoutlog_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_account_manage_fee_v1",
+          "description": "v1 账户管理费查询（明细及累计），按商户号",
+          "entry": "账务域/query_account_manage_fee_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_ght_withdraw_v2",
+          "description": "v2 GHT出款记录查询，按提现状态/商户号/时间",
+          "entry": "账务域/query_ght_withdraw_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_provision_upload_v2",
+          "description": "v2 备付金上传记录查询（核对文件）",
+          "entry": "账务域/query_provision_upload_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_adjust_bill_v2",
+          "description": "v2 调账单列表查询，按核算主体、起止时间等",
+          "entry": "账务域/query_adjust_bill_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_cross_settlement_v2",
+          "description": "v2 跨境结算批次查询，按结算状态、结算日期",
+          "entry": "账务域/query_cross_settlement_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_inoutlog_v3",
+          "description": "v3 出入账记录查询（合并收支和会计明细），按订单号或收单号",
+          "entry": "账务域/query_inoutlog_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_inout_config_v3",
+          "description": "v3 收支配置管理列表，状态查收支类型管理",
+          "entry": "账务域/query_inout_config_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_release_order_v3",
+          "description": "v3 释放冻结订单查询",
+          "entry": "账务域/query_release_order_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_microaccount_v3",
+          "description": "v3 预存款账户调账信息及专户信息查询",
+          "entry": "账务域/query_microaccount_v3.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "provision_limit",
+      "label": "备付金额度域",
+      "description": "涵盖备付金额度映射查询功能，支持按映射账户、状态（待审批/映射中/审批通过/已驳回/映射成功/映射失败）、渠道类型（银联/网联）及提交/完成时间范围筛选",
+      "skills": [
+        {
+          "name": "query_provision_limit_mapping",
+          "description": "查询备付金额度映射列表（v2，支持按账户号、映射状态、渠道类型、提交时间、完成时间筛选）",
+          "entry": "scripts/备付金额度域/query_provision_limit_mapping.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "product",
+      "label": "产品域",
+      "description": "涵盖产品域累计属性配置列表查询、累计策略配置列表查询等产品规则运维查询功能",
+      "skills": [
+        {
+          "name": "query_attribute_list",
+          "description": "查询累计属性配置列表（v1，支持按累计属性名模糊筛选）",
+          "entry": "scripts/产品域/query_attribute_list.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_strategy_list",
+          "description": "查询累计策略配置列表（v1，支持按记账标识名称模糊筛选）",
+          "entry": "scripts/产品域/query_strategy_list.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "merchant",
+      "label": "商户域",
+      "description": "涵盖商户管理、合同、短信配置、ID互查、账户查询、银行卡、会员、微信等商户全链路查询功能",
+      "skills": [
+        {
+          "name": "query_contract_v1",
+          "description": "合约文件URL查询（v1，需提供cosKey，返回临时访问URL，支持设置过期天数）",
+          "entry": "scripts/商户域/query_contract_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_merchant_tool_v1",
+          "description": "kdtId与userNo互转查询（v1，支持kdtId→userNo和userNo→kdtId双向转换，附带商户详情）",
+          "entry": "scripts/商户域/query_merchant_tool_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_merchant_v1",
+          "description": "商户信息列表查询（v1，支持按商户名称、商户号、商户来源、商户状态、商户类型、服务商筛选）",
+          "entry": "scripts/商户域/query_merchant_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_sms_config_v1",
+          "description": "短信验证码配置列表查询（v1，支持分页查询全量配置或按bizCode精确查询单条）",
+          "entry": "scripts/商户域/query_sms_config_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_export_template_v1",
+          "description": "导出平台模板列表查询（v1，支持按模板ID、模板名称、接入方应用名称筛选）",
+          "entry": "scripts/商户域/query_export_template_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_user_bank_card_v1",
+          "description": "用户快捷支付绑定银行卡查询（v1，需提供手机号和银行卡后四位，返回绑卡列表）",
+          "entry": "scripts/商户域/query_user_bank_card_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_cashier_tool_v1",
+          "description": "收银台支付工具列表查询（v1，需提供合作商户号和子商户ID，返回支付工具及余额）",
+          "entry": "scripts/商户域/query_cashier_tool_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_id_cross_v3",
+          "description": "userId与memId互转查询（v3，支持userId→memId和memId→详情两个方向）",
+          "entry": "scripts/商户域/query_id_cross_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_kdtid_userno_v3",
+          "description": "kdtId与userNo互转查询（v3，参数包装在singleParam中，支持双向转换并附带商户详情）",
+          "entry": "scripts/商户域/query_kdtid_userno_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_operation_record_v3",
+          "description": "会员操作记录查询（v3，需提供memId，返回冻结/解冻操作历史记录）",
+          "entry": "scripts/商户域/query_operation_record_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_account_v3",
+          "description": "通用资产账号查询（v3，需提供bizUserId和bizType，bizType枚举值在qa/prod环境不同）",
+          "entry": "scripts/商户域/query_account_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_bank_card_v3",
+          "description": "银行及卡信息维护查询（v3，无入参返回全量总行列表，可按总行名称查询支行列表）",
+          "entry": "scripts/商户域/query_bank_card_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_member_detail_v3",
+          "description": "支付会员信息查询（v3，支持按memId或userId查询会员详情，userId自动转换）",
+          "entry": "scripts/商户域/query_member_detail_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_wechat_gold_card_v3",
+          "description": "微信点金计划分页查询（v3，支持按商户号、子商户号、机构、渠道筛选点金计划状态）",
+          "entry": "scripts/商户域/query_wechat_gold_card_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_user_info_v3",
+          "description": "用户信息列表查询（v3，支持按姓名、手机号、证件号、会员号筛选，合规平台需输入手机号或会员号）",
+          "entry": "scripts/商户域/query_user_info_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_user_bank_card_v3",
+          "description": "用户快捷支付绑定银行卡查询（v3，参数包装在singleParam中，需提供手机号和银行卡后四位）",
+          "entry": "scripts/商户域/query_user_bank_card_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_wechat_whitelist_v3",
+          "description": "微信白名单配置查询（v3，需提供bizId/bizCode/bizType，支持通用查询和精确查询两种模式）",
+          "entry": "scripts/商户域/query_wechat_whitelist_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_wechat_cert_v3",
+          "description": "微信支付实名认证超时查询（v3，需提供支付商户号userNo，返回实名认证状态及各阶段时间戳）",
+          "entry": "scripts/商户域/query_wechat_cert_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_cashier_tool_v3",
+          "description": "收银台支付工具列表查询（v3，参数包装在singleParam中，需提供合作商户号和子商户ID）",
+          "entry": "scripts/商户域/query_cashier_tool_v3.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reconciliation",
+      "label": "对账域",
+      "description": "涵盖核对查询、账单查询、对账报表、差错诊断、内部对账、存疑数据、对账文件等全链路对账查询功能",
+      "skills": [
+        {
+          "name": "query_reconcile_v2",
+          "description": "核对查询（v2），银行备付金核对记录查询，支持按资金渠道、商户号、银行账号、清算日期、业务状态筛选",
+          "entry": "scripts/对账域/query_reconcile_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_bill_v2",
+          "description": "账单查询（v2），备付金账单明细查询，支持按备付金账号、清算日期、业务日期、金额区间、对方账户筛选",
+          "entry": "scripts/对账域/query_bill_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_actual_reconcile_v3",
+          "description": "实收核对（v3），渠道实收对账日汇总查询，支持按机构、业务线、费用类型、交易时间筛选",
+          "entry": "scripts/对账域/query_actual_reconcile_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_reconcile_report_v3",
+          "description": "对账报表（v3），渠道对账汇总报表查询，支持按交易日期区间筛选，返回间联/直连/网联/银联/微信/平安/易宝等多维度收单与提现数据",
+          "entry": "scripts/对账域/query_reconcile_report_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_error_diagnosis_v3",
+          "description": "差错诊断（v3），渠道差错诊断列表查询，支持按差错类型、差错状态、资金渠道、业务类型、商户号、支付单号、交易日期、金额区间筛选",
+          "entry": "scripts/对账域/query_error_diagnosis_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_account_reconcile_v3",
+          "description": "账户核对（v3），渠道账户核对日汇总列表查询，支持按核算主体、账号名称、业务类型、入账日期筛选",
+          "entry": "scripts/对账域/query_account_reconcile_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_internal_reconcile_unit_v3",
+          "description": "内部对账-单元（v3），内部对账单元任务列表查询，支持按对账双方、业务类型、任务状态（待对账/对账中/核对一致/核对不一致等）、对账日期筛选",
+          "entry": "scripts/对账域/query_internal_reconcile_unit_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_internal_reconcile_platform_v3",
+          "description": "内部对账-平台（v3），占位页面暂无独立查询接口，调用后返回提示信息",
+          "entry": "scripts/对账域/query_internal_reconcile_platform_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_internal_reconcile_task_v3",
+          "description": "内部对账-任务详情（v3），按任务ID查询内部对账单元任务详情，支持按对平状态（一致/不一致/少数据）筛选",
+          "entry": "scripts/对账域/query_internal_reconcile_task_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_internal_reconcile_diff_v3",
+          "description": "内部对账-差异详情（v3），按差异结果ID查询内部对账差异明细，返回srcData/targetData原始JSON数据",
+          "entry": "scripts/对账域/query_internal_reconcile_diff_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_error_biz_ops_v3",
+          "description": "差错诊断-业务操作记录（v3），按业务单号查询差错诊断业务侧操作记录，需同时提供业务类型、资金渠道、差错类型",
+          "entry": "scripts/对账域/query_error_biz_ops_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_error_channel_ops_v3",
+          "description": "差错诊断-渠道操作记录（v3），按业务单号查询差错诊断渠道侧操作记录，需同时提供业务类型、资金渠道、差错类型",
+          "entry": "scripts/对账域/query_error_channel_ops_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_suspicious_data_v3",
+          "description": "存疑数据查询（v3），渠道对账存疑数据查询，支持按业务类型、资金渠道、存疑类型、交易日期、对账日期筛选",
+          "entry": "scripts/对账域/query_suspicious_data_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_reconcile_file_v3",
+          "description": "对账文件管理（v3），渠道对账文件列表查询，支持按资金渠道、商户号、文件账单日期筛选",
+          "entry": "scripts/对账域/query_reconcile_file_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_reconcile_result_v3",
+          "description": "对账结果查询（v3），渠道对账结果汇总查询，支持按资金渠道、业务类型、商户号、交易日期、对账日期筛选",
+          "entry": "scripts/对账域/query_reconcile_result_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_bill_detail_v3",
+          "description": "账单明细查询（v3），渠道账单明细汇总查询，支持按资金渠道、业务类型、商户号、文件账单日期筛选",
+          "entry": "scripts/对账域/query_bill_detail_v3.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "gateway",
+      "label": "网关域",
+      "description": "涵盖网关API列表查询、网关API测试参数查询、网关API详情查询等网关相关功能",
+      "skills": [
+        {
+          "name": "query_gateway_list",
+          "description": "查询网关API列表（v1，支持按应用名称、版本、java接口名、API全称筛选，API全称自动拆分为service+method传参）",
+          "entry": "scripts/网关域/query_gateway_list.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_gateway_test_param",
+          "description": "查询网关API测试参数元信息（v1，需提供apiId，返回参数名/类型/描述/是否必须的动态表单定义）",
+          "entry": "scripts/网关域/query_gateway_test_param.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_gateway_detail",
+          "description": "查询网关API完整配置详情（v1，需提供apiId，返回基本信息、入参列表、类型信息、映射关系、返回类型等多段详情）",
+          "entry": "scripts/网关域/query_gateway_detail.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "accounting",
+      "label": "会计域",
+      "description": "涵盖利润报表、负债报表、日汇总报表、科目日汇总、规则信息报表、试算查询、记账错误查询、会计科目配置/管理、记账规则配置/管理、会计码管理、科目余额调整等会计核算全链路运维查询功能",
+      "skills": [
+        {
+          "name": "query_profit_report",
+          "description": "查询利润报表（v1，支持按报表日期、报表类型=日/周/月筛选，默认今天日报表）",
+          "entry": "scripts/会计域/query_profit_report.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_liabilities_report",
+          "description": "查询负债报表（v1，支持按报表日期、报表类型=日/周/月筛选，默认今天日报表）",
+          "entry": "scripts/会计域/query_liabilities_report.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_daily_summary_report",
+          "description": "查询账户日汇总报表（v1，支持按会计日期、会计科目、账户号筛选，默认今天）",
+          "entry": "scripts/会计域/query_daily_summary_report.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_subject_daily_summary",
+          "description": "查询科目日汇总数据（v1，支持按会计日期、科目代码筛选，默认今天）",
+          "entry": "scripts/会计域/query_subject_daily_summary.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_trial_balance",
+          "description": "查询试算余额（v1，支持按账号、开始/结束时间筛选，时间格式 YYYY-MM-DD HH:mm:ss）",
+          "entry": "scripts/会计域/query_trial_balance.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_rule_info_report",
+          "description": "查询规则信息报表（v1，支持按订单号、收单号、会计日期筛选，默认今天）",
+          "entry": "scripts/会计域/query_rule_info_report.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_bookkeeping_error",
+          "description": "查询记账错误记录（v1，支持按核对状态=异常/正常、账务流水号、订单号、收单号、凭证ID、分录ID、金额、时间范围筛选）",
+          "entry": "scripts/会计域/query_bookkeeping_error.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_accounting_subject_config",
+          "description": "查询会计科目配置列表（v1，支持按科目代码、科目属性、科目级别筛选，默认全部）",
+          "entry": "scripts/会计域/query_accounting_subject_config.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_bookkeeping_rule_config",
+          "description": "查询记账规则配置列表（v1，支持按记账码、渠道码筛选）",
+          "entry": "scripts/会计域/query_bookkeeping_rule_config.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_accounting_code",
+          "description": "查询会计码管理列表（v2，支持按核算主体=高汇通支付/有赞平台、渠道码、渠道商户号、会计码、审核状态筛选，默认审核通过）",
+          "entry": "scripts/会计域/query_accounting_code.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_accounting_subject_management",
+          "description": "查询会计科目管理列表（v2，支持按核算主体、科目级别=一/二/三级、科目编码、科目名称、可用标识、审核状态筛选）",
+          "entry": "scripts/会计域/query_accounting_subject_management.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_subject_balance_adjust",
+          "description": "查询科目余额调整记录（v2，支持按核算主体、凭证号、申请时间范围、申请人、审核时间范围、审核人、凭证状态数组筛选，默认近7天）",
+          "entry": "scripts/会计域/query_subject_balance_adjust.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_bookkeeping_rule_management",
+          "description": "查询记账规则管理列表（v2，支持按核算主体、渠道商户号、会计码、渠道码、规则名称、交易码、交易子码、审核状态筛选，默认审核通过）",
+          "entry": "scripts/会计域/query_bookkeeping_rule_management.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_accounting_params",
+          "description": "查询参数维护列表（v1，TODO: 源码无真实API，需人工补全）",
+          "entry": "scripts/会计域/query_accounting_params.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_bookkeeping_query",
+          "description": "查询记账数据（v1，TODO: 源码无真实API，需人工补全）",
+          "entry": "scripts/会计域/query_bookkeeping_query.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_single_order",
+          "description": "查询单笔订单记账信息（v1，TODO: 源码无真实API，需人工补全）",
+          "entry": "scripts/会计域/query_single_order.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "label": "退款域",
+      "description": "涵盖退款异常、退款详情、赔付管理、资金处置/追回、退款规则/订单等退款全链路查询功能",
+      "skills": [
+        {
+          "name": "query_refund_exception_v1",
+          "description": "查询退款异常列表（v1，支持按交易E单号、支付明细单号、差错状态、三方支付单号筛选，默认近一年）",
+          "entry": "scripts/退款域/query_refund_exception_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_refund_detail_v1",
+          "description": "查询退款详情（v1，需提供退款明细单号和差错类型，返回操作历史及退款订单详情）",
+          "entry": "scripts/退款域/query_refund_detail_v1.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_refund_exception_v2",
+          "description": "查询退款异常列表（v2，资产中心，支持按业务单号、支付明细号、收单号、退款明细号、创建时间筛选）",
+          "entry": "scripts/退款域/query_refund_exception_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_abnormal_refund_v2",
+          "description": "查询异常退款单/追偿单列表（v2，需提供操作人ID，支持按店铺ID/名称、订单编号、业务单状态筛选）",
+          "entry": "scripts/退款域/query_abnormal_refund_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_refund_exception_history_v2",
+          "description": "查询退款异常历史列表（v2，支持按业务单号、支付明细号、操作类型、收单号、退款明细号筛选）",
+          "entry": "scripts/退款域/query_refund_exception_history_v2.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_quick_refund_close_v3",
+          "description": "查询快捷退款-关闭扣款信息（v3，需提供退款单号，返回退款状态及详情）",
+          "entry": "scripts/退款域/query_quick_refund_close_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_compensation_v3",
+          "description": "查询赔付管理列表（v3，支持按店铺ID/名称、订单编号、处置业务单、追偿单状态、业务方、申请时间筛选）",
+          "entry": "scripts/退款域/query_compensation_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_invoice_reversal_v3",
+          "description": "查询发票红冲管理列表（v3，支持按店铺、开票类型、申请单号、发票状态、申请时间、开票主体筛选）",
+          "entry": "scripts/退款域/query_invoice_reversal_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_fund_disposal_v3",
+          "description": "查询资金处置管理列表（v3，支持按业务方、业务单状态、店铺ID/名称、订单编号、金额范围、申请时间筛选）",
+          "entry": "scripts/退款域/query_fund_disposal_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_fund_recovery_v3",
+          "description": "查询资金追回管理列表（v3，支持按店铺ID/名称、订单编号、处置业务单、追偿业务单、追偿单状态筛选）",
+          "entry": "scripts/退款域/query_fund_recovery_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_refund_rollback_v3",
+          "description": "查询退款回退列表（v3，支持按店铺ID/名称、订单编号、申请单状态筛选）",
+          "entry": "scripts/退款域/query_refund_rollback_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_refund_rule_v3",
+          "description": "查询退款规则管理列表（v3，支持按规则编号筛选，返回规则出金账户/目标账户/是否追偿等配置）",
+          "entry": "scripts/退款域/query_refund_rule_v3.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_refund_order_v3",
+          "description": "查询退款订单管理列表（v3，支持按业务方、业务单状态、店铺ID/名称、订单编号、申请时间筛选）",
+          "entry": "scripts/退款域/query_refund_order_v3.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "finance",
+      "label": "财务域",
+      "description": "涵盖财务提现、退款、备付金监控、银联余额查询、客户费率等财务相关查询功能",
+      "skills": [
+        {
+          "name": "query_monitor_config",
+          "description": "监控配置查询（v1），支持按渠道类型、预警账号、是否预警、操作人筛选",
+          "entry": "scripts/财务域/query_monitor_config.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_finance_withdraw",
+          "description": "财务提现记录查询（v1），支持按提现申请时间、完成时间、流水号、商户号、提现账号、入金账户类型、提现状态、业务线、业务类型、渠道类型筛选",
+          "entry": "scripts/财务域/query_finance_withdraw.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_finance_refund",
+          "description": "财务回款（退款）记录查询（v1），支持按回款提交时间、回款完成时间、头寸序号、回款状态筛选",
+          "entry": "scripts/财务域/query_finance_refund.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_finance_provision",
+          "description": "财务备付金（备款）记录查询（v1），支持按备款提交时间、完成时间、头寸序号、备款账号、备款状态筛选",
+          "entry": "scripts/财务域/query_finance_provision.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_unionpay_balance",
+          "description": "银联备付金余额查询（v1），支持按备款账号、时间范围筛选",
+          "entry": "scripts/财务域/query_unionpay_balance.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_quick_payment_invoice",
+          "description": "快捷回款商家发票查询（v3），按商户号和发票月份查询，默认上个月",
+          "entry": "scripts/财务域/query_quick_payment_invoice.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_quick_payment_channel",
+          "description": "快捷回款渠道账户余额查询（v3），支持按渠道筛选（人保财险/阳光融担/国佳保理/有赞信保），默认人保财险",
+          "entry": "scripts/财务域/query_quick_payment_channel.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_customer_rate",
+          "description": "客户费率列表查询（v3），支持按店铺ID、配置时间、费率类型、营销方式、营销人筛选，活动编号AN00028自动注入",
+          "entry": "scripts/财务域/query_customer_rate.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_customer_rate_detail",
+          "description": "客户费率详情查询（v3），按定价方案订单号查询，活动编号AN00028自动注入",
+          "entry": "scripts/财务域/query_customer_rate_detail.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "billing_settlement",
+      "label": "计费清结算域",
+      "description": "涵盖计费规则配置、计费套餐配置、套餐保证金配置、店铺签约、凭证审核、计费核对、结算规则配置等计费清结算全链路运维查询功能",
+      "skills": [
+        {
+          "name": "query_billing_rule_config",
+          "description": "查询计费规则配置列表（v1，支持按服务包编号packNo筛选，返回费率/费率补贴/交易上下限金额/收费金额等）",
+          "entry": "scripts/计费清结算域/query_billing_rule_config.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_billing_package_config",
+          "description": "查询商户收费包配置列表（v1，支持按商户ID筛选，返回收费包编号/商户角色/白名单类型/计费类型等）",
+          "entry": "scripts/计费清结算域/query_billing_package_config.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_package_guarantee_config",
+          "description": "查询大客套餐有赞担保5W封顶列表（v1，支持按店铺ID/商户ID筛选，返回套餐版本/时间段/备注等）",
+          "entry": "scripts/计费清结算域/query_package_guarantee_config.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_shop_sign",
+          "description": "查询店铺计费包签约列表（v1，支持按店铺ID/商户ID/计费包编号/签约状态/操作人/操作时间筛选）",
+          "entry": "scripts/计费清结算域/query_shop_sign.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_voucher_audit",
+          "description": "查询凭证审核列表（v1，需提供登录用户ID，支持按审核时间/商户号/付款方户名/用途类型/审核状态/支付流水号筛选）",
+          "entry": "scripts/计费清结算域/query_voucher_audit.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_billing_check",
+          "description": "查询计费清结算对账（v1，需提供收单号，串行调用清结算日志和计费明细两个API，返回关联合并结果）",
+          "entry": "scripts/计费清结算域/query_billing_check.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_settlement_rule_config",
+          "description": "查询结算规则配置列表（v1，支持按服务商商户号筛选，返回结算类型/账户类型/收入支出/产品类型/业务模式等）",
+          "entry": "scripts/计费清结算域/query_settlement_rule_config.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "settlement",
+      "label": "清结算域",
+      "description": "涵盖清结算记录、业务规则绑定、商户费率规则、产品规则配置/结果/主数据、费率模板、计费产品、内部商户管理等清结算全链路运维查询功能",
+      "skills": [
+        {
+          "name": "query_settlement_record",
+          "description": "查询清结算记录（v2，支持按申请/完成时间、商户号、服务商号、结算周期/账户类型/状态/是否退票筛选，返回清结算记录列表、清算明细、银行信息）",
+          "entry": "scripts/清结算域/query_settlement_record.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_business_rule_binding",
+          "description": "查询业务规则绑定列表（v3，支持按绑定键类型(kdtId/mchId)、绑定值、产品因子筛选，返回结算产品码/店铺/商户/创建人/模板类型/绑定状态等）",
+          "entry": "scripts/清结算域/query_business_rule_binding.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_merchant_fee_rule",
+          "description": "查询商户费率规则列表（v3，支持按标识类型(kdtId/mchId)、标识值、计费产品编码筛选，返回计费产品/店铺/商户/模板类型/规则状态等）",
+          "entry": "scripts/清结算域/query_merchant_fee_rule.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_product_rule_result",
+          "description": "查询产品规则结果（v3，需提供规则编号，返回规则因子详情、付款方优先级表、收款方优先级表）",
+          "entry": "scripts/清结算域/query_product_rule_result.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_product_rule_config",
+          "description": "查询产品规则配置列表（v3，支持按产品常量key筛选，返回规则配置编号和描述的卡片列表）",
+          "entry": "scripts/清结算域/query_product_rule_config.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_product_config_master",
+          "description": "查询产品配置主数据（v3，需提供模板编号，返回产品码配置、结算模板配置、付款方/收款方资产优先级）",
+          "entry": "scripts/清结算域/query_product_config_master.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_fee_ratio_template",
+          "description": "查询费率模板（v3，需提供计费产品编码和行业编码，返回标准算账费率和个性化算账费率模板）",
+          "entry": "scripts/清结算域/query_fee_ratio_template.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_fee_product",
+          "description": "查询计费产品列表（v3，支持按计费产品编码、行业编码筛选，返回计费产品名称/是否有协议/业务方/行业/通用规则/状态等）",
+          "entry": "scripts/清结算域/query_fee_product.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_inner_merchant",
+          "description": "查询内部商户结算记录（v3，GET请求，支持按申请时间、商户号、结算流水号筛选，返回结算状态/金额/流水号等）",
+          "entry": "scripts/清结算域/query_inner_merchant.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "internal_payment",
+      "label": "内部支付域",
+      "description": "涵盖支付信息查询、商户支付信息查询、支付详情、支付完整信息、用户支付、历史订单等内部支付全链路查询功能",
+      "skills": [
+        {
+          "name": "query_pay_info",
+          "description": "查询商户支付信息列表（v1，对应/page/payInfo，支持按商户名称/号、客户号、订单号、收单号、渠道订单号、支付方式、业务类型、业务状态、创建/更新时间筛选，默认今天创建）",
+          "entry": "scripts/内部支付域/query_pay_info.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_mistake_detail",
+          "description": "查询支付信息详情（v1，需提供业务ID bizId，返回退款流水列表含退款状态/账号/失败原因等）",
+          "entry": "scripts/内部支付域/query_mistake_detail.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_payment_info",
+          "description": "查询支付信息（v1，对应/page/paymentInfo，需提供订单号，返回支付信息、交易信息、退款信息、优惠详情、手续费信息等多区块）",
+          "entry": "scripts/内部支付域/query_payment_info.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_full_payment_info",
+          "description": "查询支付完整信息（v1，支持按收单号/订单号/商户号/子商户识别码/kdtId查询，返回支付信息、退款信息、交易信息、优惠详情等多卡片）",
+          "entry": "scripts/内部支付域/query_full_payment_info.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_user_membill",
+          "description": "查询内部支付工具-用户支付（v3，需提供会员号memId，支持按业务单号/业务类型/交易时间筛选，默认近29天）",
+          "entry": "scripts/内部支付域/query_user_membill.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_old_orders",
+          "description": "查询内部支付工具-历史订单（v3，需提供外部交易单号orderNO，返回收单号/金额/状态/结算状态等）",
+          "entry": "scripts/内部支付域/query_old_orders.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "wechat_process",
+      "label": "微信流程域",
+      "description": "涵盖微信支付进件流程详情、进件配置查询、任务记录、操作日志及微信结算费率配置等微信支付全链路流程运维查询功能",
+      "skills": [
+        {
+          "name": "query_pay_process",
+          "description": "查询支付流程详情/进件状态列表（v1，支持按商户号/店铺id/进件类型筛选，返回进件状态、appId、创建更新时间）",
+          "entry": "scripts/微信流程域/query_pay_process.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_pay_config",
+          "description": "查询支付配置详情/进件配置列表（v1，支持按商户号/机构/渠道/业务类型/appId/子商户号筛选，返回类型、机构、渠道、场景、settleId等12列）",
+          "entry": "scripts/微信流程域/query_pay_config.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_pay_config_task",
+          "description": "查询支付配置详情-任务记录（v1，需提供子商户号subMchId，返回操作人/执行时间/操作事项/任务状态/操作原因）",
+          "entry": "scripts/微信流程域/query_pay_config_task.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_pay_config_log",
+          "description": "查询支付配置详情-操作日志（v1，需提供子商户号subMchId，返回操作人/操作时间/操作事项/操作原因）",
+          "entry": "scripts/微信流程域/query_pay_config_log.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_wx_settle_rate",
+          "description": "查询微信结算费率配置（v1，需提供操作人用户名，返回主体类型编码/描述及行业费率配置列表）",
+          "entry": "scripts/微信流程域/query_wx_settle_rate.py",
+          "features": ["查"]
+        }
+      ]
+    },
+    {
+      "name": "billing_rule",
+      "label": "计费规则域",
+      "description": "涵盖通用/商家计费规则、结算资产规则、计费规则/套餐/保证金配置、店铺签约、结算规则配置、计费产品/费率模板/商户费率规则管理、产品规则配置/结果查询、业务规则绑定查询等计费规则全链路运维查询功能",
+      "skills": [
+        {
+          "name": "query_general_fee_rule_v2",
+          "description": "查询通用计费规则列表（v2，支持按计费产品名称或代码筛选，返回产品代码/名称/通用规则/结算资产类型/优先级）",
+          "entry": "scripts/计费规则域/query_general_fee_rule_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_merchant_fee_rule_v2",
+          "description": "查询商家计费规则列表（v2，支持按店铺kdtID/名称/计费产品/协议号/合同号/算账规则码筛选）",
+          "entry": "scripts/计费规则域/query_merchant_fee_rule_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_settlement_assets_v2",
+          "description": "查询结算资产规则（v2，需提供店铺信息，支持按kdtId/kdtName查询维度和计费产品筛选，返回资产规则/赠送/订购/共享/无限量订购包）",
+          "entry": "scripts/计费规则域/query_settlement_assets_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_billing_rule_config_v1",
+          "description": "查询计费规则配置列表（v1，支持按服务包编号筛选，返回费率/费率补贴/交易上下限金额/收费金额等11列）",
+          "entry": "scripts/计费规则域/query_billing_rule_config_v1.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_billing_package_config_v1",
+          "description": "查询计费套餐配置列表（v1，支持按商户ID筛选，返回收费包编号/商户角色/白名单类型/计费类型等8列）",
+          "entry": "scripts/计费规则域/query_billing_package_config_v1.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_package_guarantee_v1",
+          "description": "查询套餐保证金配置列表（v1，支持按商户ID/店铺ID筛选，返回套餐版本/时间段/备注等7列）",
+          "entry": "scripts/计费规则域/query_package_guarantee_v1.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_shop_sign_v1",
+          "description": "查询店铺签约列表（v1，支持按商户ID/店铺ID/计费包编号/签约状态/操作人/操作时间筛选，返回10列）",
+          "entry": "scripts/计费规则域/query_shop_sign_v1.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_settlement_rule_config_v1",
+          "description": "查询结算规则配置列表（v1，支持按服务商商户号筛选，返回结算类型/账户类型/收入支出/产品类型/业务模式等9列）",
+          "entry": "scripts/计费规则域/query_settlement_rule_config_v1.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_fee_product_v3",
+          "description": "查询计费产品管理列表（v3，支持按计费产品编码/行业编码筛选，返回产品名称/是否有协议/业务方/行业/通用规则/状态等8列）",
+          "entry": "scripts/计费规则域/query_fee_product_v3.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_fee_ratio_template_v3",
+          "description": "查询费率模板（v3，需提供计费产品编码和行业编码，返回标准算账费率和个性化算账费率模板卡片）",
+          "entry": "scripts/计费规则域/query_fee_ratio_template_v3.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_merchant_fee_rule_v3",
+          "description": "查询商户费率规则列表（v3，支持按标识类型(kdtId/mchId)、标识值、计费产品编码筛选，返回计费产品/创建人/模板类型等8列）",
+          "entry": "scripts/计费规则域/query_merchant_fee_rule_v3.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_product_rule_config_v3",
+          "description": "查询产品规则配置列表（v3，支持按产品常量key筛选，返回规则配置编号和描述的卡片列表）",
+          "entry": "scripts/计费规则域/query_product_rule_config_v3.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_product_rule_result_v3",
+          "description": "查询产品规则结果（v3，需提供规则编号，返回规则因子详情、付款方优先级表、收款方优先级表）",
+          "entry": "scripts/计费规则域/query_product_rule_result_v3.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_business_rule_binding_v3",
+          "description": "查询业务规则绑定列表（v3，支持按绑定键类型(kdtId/mchId)、绑定值、产品因子筛选，返回结算产品码/创建人/模板类型等8列）",
+          "entry": "scripts/计费规则域/query_business_rule_binding_v3.py",
+          "features": ["查"]
+        }
+      ]
+    },
+    {
+      "name": "data_center",
+      "label": "数据中心域",
+      "description": "涵盖模型规则管理、模型信息管理、规则信息管理、日志记录列表等数据中心运维查询功能",
+      "skills": [
+        {
+          "name": "query_model_rule_management",
+          "description": "查询模型规则管理列表（v1，支持按类型（模型/规则/事件）、ID、名称、创建时间筛选，不同类型返回不同列）",
+          "entry": "scripts/数据中心域/model_rule_management.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_model_info_management",
+          "description": "查询模型信息详情（v1，需提供模型ID，返回模型完整信息含API/字段/数据源配置）",
+          "entry": "scripts/数据中心域/model_info_management.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_rule_info_management",
+          "description": "查询规则信息详情（v1，需提供规则ID，返回规则完整信息含Nsq/事件/行为过程配置）",
+          "entry": "scripts/数据中心域/rule_info_management.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_log_record_list",
+          "description": "查询日志记录列表（v1，需提供操作人和操作菜单，支持按操作时间筛选，默认今天）",
+          "entry": "scripts/数据中心域/log_record_list.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "fund",
+      "label": "资金域",
+      "description": "涵盖担保交易查询（贷款/还款）、支付凭证、批量转账、快速提额、充值额度管理等资金域核心查询功能",
+      "skills": [
+        {
+          "name": "query_secured_trade_loan",
+          "description": "查询担保交易-贷款详情（v3，需提供贷款合同单号，返回贷款详情及订单列表）",
+          "entry": "scripts/资金域/v3_担保交易_贷款查询.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_secured_trade_repay",
+          "description": "查询担保交易-还款详情（v3，需提供还款单号，返回还款详情、还款计划明细及还款记录）",
+          "entry": "scripts/资金域/v3_担保交易_还款查询.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_payment_voucher",
+          "description": "查询支付凭证（电子回单）（v3，需提供转账交易单号，返回凭证详情，支持权限验证）",
+          "entry": "scripts/资金域/v3_支付凭证查询.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_batch_transfer",
+          "description": "查询批量转账记录（v3，支持按申请时间/审核人/状态/批次号筛选，默认近7天执行成功记录）",
+          "entry": "scripts/资金域/v3_批量转账.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_quick_increase_quota",
+          "description": "查询快速提额-自有渠道额度评估（v3，无入参，返回昨日额度不足Top30店铺）",
+          "entry": "scripts/资金域/v3_快速提额_自有渠道额度评估.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_quick_increase_manual",
+          "description": "查询快速提额-人工提额记录（v3，支持按店铺ID/名称/状态筛选，默认分页查询）",
+          "entry": "scripts/资金域/v3_快速提额_人工提额.py",
+          "features": [
+            "查"
+          ]
+        },
+        {
+          "name": "query_recharge_quota",
+          "description": "查询商家充值限额信息（v3，需提供店铺ID或商户号，返回商家信息及限额配置，支持ID双向转换）",
+          "entry": "scripts/资金域/v3_充值额度管理.py",
+          "features": [
+            "查"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "account_query",
+      "label": "账户查询域",
+      "description": "涵盖外部/内部资金账户查询、账户明细/冻结明细查询、会计报表（科目总账表）、总分平衡表及通用资产账号查询等账户全链路运维查询功能",
+      "skills": [
+        {
+          "name": "query_outer_account_v2",
+          "description": "查询外部账户/资金账户（v2，支持按商户号/会员号或KdtId查询，返回支付账户信息表+微账户信息表）",
+          "entry": "scripts/账户查询域/query_outer_account_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_outer_account_detail_v2",
+          "description": "查询外部账户明细/收支明细（v2，需提供资金账号和账户类型，支持按时间范围筛选，默认近7天）",
+          "entry": "scripts/账户查询域/query_outer_account_detail_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_outer_account_frozen_v2",
+          "description": "查询外部账户冻结明细/不可用余额明细（v2，需提供资金账号，支持按时间范围筛选，默认近7天）",
+          "entry": "scripts/账户查询域/query_outer_account_frozen_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_inner_account_v2",
+          "description": "查询内部账户/内部资金账户列表（v2，支持按核算主体筛选，默认高汇通支付）",
+          "entry": "scripts/账户查询域/query_inner_account_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_inner_account_detail_v2",
+          "description": "查询内部账户明细/收支明细（v2，需提供内部户账号，支持按时间范围/借贷方向/归档类型筛选，默认近7天）",
+          "entry": "scripts/账户查询域/query_inner_account_detail_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_fin_report_v2",
+          "description": "查询会计报表/科目总账表（v2，支持按核算主体/会计日期/科目级别筛选，默认昨天一级科目）",
+          "entry": "scripts/账户查询域/query_fin_report_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_total_report_v2",
+          "description": "查询总分平衡表（v2，支持按核算主体/会计日期/平衡关系筛选，对比分户账与会计核算借贷余额是否一致）",
+          "entry": "scripts/账户查询域/query_total_report_v2.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_account_v3",
+          "description": "查询通用资产账号（v3，需提供业务账户和业务类型，业务类型枚举：有赞客/爱逛/爱逛买手店达人/爱逛CPM广告主）",
+          "entry": "scripts/账户查询域/query_account_v3.py",
+          "features": ["查"]
+        }
+      ]
+    },
+    {
+      "name": "cashier",
+      "label": "收银台域",
+      "description": "涵盖收银台业务管理（收银台类型/PayInfos/PayTools全局与优先级配置规则及版本）、场景KV名单管理（支付工具/业务/HostApp/运行时/协议/收银台类型/合作方ID/SDK）、PayTools预览、收银台插件最新版本查询、页面证书管理（列表/WAP编辑内容/版本历史）等收银台全链路运维查询功能",
+      "skills": [
+        {
+          "name": "query_cashier_type_manage",
+          "description": "查询收银台类型配置规则（v3，不传rule_id查询已发布规则列表，传入rule_id查询单条规则详情）",
+          "entry": "scripts/收银台域/query_cashier_type_manage.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_cashier_type_version",
+          "description": "查询收银台类型版本列表（v3，支持按描述关键字分页查询版本历史）",
+          "entry": "scripts/收银台域/query_cashier_type_version.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_payinfos_global",
+          "description": "查询PayInfos全局配置规则（v3，不传rule_id查询已发布全局规则列表，传入rule_id查询单条规则详情）",
+          "entry": "scripts/收银台域/query_payinfos_global.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_payinfos_priority",
+          "description": "查询PayInfos优先级配置规则（v3，不传rule_id查询已发布优先级规则列表，传入rule_id查询单条规则详情）",
+          "entry": "scripts/收银台域/query_payinfos_priority.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_payinfos_version",
+          "description": "查询PayInfos版本列表（v3，支持按类型枚举：5=全局匹配/3=优先匹配，默认全局匹配）",
+          "entry": "scripts/收银台域/query_payinfos_version.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_paytools_global",
+          "description": "查询PayTools全局配置规则（v3，不传rule_id查询已发布全局规则列表，传入rule_id查询单条规则详情）",
+          "entry": "scripts/收银台域/query_paytools_global.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_paytools_priority",
+          "description": "查询PayTools优先级配置规则（v3，不传rule_id查询已发布优先级规则列表，传入rule_id查询单条规则详情）",
+          "entry": "scripts/收银台域/query_paytools_priority.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_paytools_version",
+          "description": "查询PayTools版本列表（v3，支持按类型枚举：1=全局匹配/2=优先匹配，默认全局匹配）",
+          "entry": "scripts/收银台域/query_paytools_version.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_paytools_preview",
+          "description": "预览PayTools支付工具列表（v3，需提供biz/hostApp/runtime，返回当前生效的支付方式名称与编码）",
+          "entry": "scripts/收银台域/query_paytools_preview.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_scenariokv_paytool",
+          "description": "查询场景KV-支付工具名单列表（v3，支持按Key或文案关键字搜索）",
+          "entry": "scripts/收银台域/query_scenariokv_paytool.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_scenariokv_biz",
+          "description": "查询场景KV-业务名单列表（v3，支持按Key或文案关键字搜索）",
+          "entry": "scripts/收银台域/query_scenariokv_biz.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_scenariokv_hostapp",
+          "description": "查询场景KV-HostApp名单列表（v3，支持按Key或文案关键字搜索）",
+          "entry": "scripts/收银台域/query_scenariokv_hostapp.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_scenariokv_runtime",
+          "description": "查询场景KV-运行时名单列表（v3，支持按Key或文案关键字搜索）",
+          "entry": "scripts/收银台域/query_scenariokv_runtime.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_scenariokv_protocol",
+          "description": "查询场景KV-协议名单列表（v3，支持按Key或文案关键字搜索）",
+          "entry": "scripts/收银台域/query_scenariokv_protocol.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_scenariokv_cashier_type",
+          "description": "查询场景KV-收银台类型名单列表（v3，支持按Key或文案关键字搜索）",
+          "entry": "scripts/收银台域/query_scenariokv_cashier_type.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_scenariokv_partner_id",
+          "description": "查询场景KV-合作方ID名单列表（v3，支持按Key或文案关键字搜索）",
+          "entry": "scripts/收银台域/query_scenariokv_partner_id.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_scenariokv_sdk",
+          "description": "查询场景KV-SDK名单列表（v3，支持按Key或文案关键字搜索）",
+          "entry": "scripts/收银台域/query_scenariokv_sdk.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_cashier_plugin_latest",
+          "description": "查询收银台插件最新版本（v3，枚举通道类型：BETA_VERSION=测试版/OFFICIAL_VERSION=正式版，默认测试版）",
+          "entry": "scripts/收银台域/query_cashier_plugin_latest.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_cert_manage_pages",
+          "description": "查询页面证书列表（v3，需提供业务线biz，支持按发布状态筛选，默认全部）",
+          "entry": "scripts/收银台域/query_cert_manage_pages.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_cert_wap_content",
+          "description": "查询页面证书WAP编辑内容（v3，需提供页面记录ID，返回WAP编辑器组件配置）",
+          "entry": "scripts/收银台域/query_cert_wap_content.py",
+          "features": ["查"]
+        },
+        {
+          "name": "query_cert_version",
+          "description": "查询页面证书版本历史（v3，需提供pageId和biz，支持按业务场景/操作端/所属功能筛选，默认H5端/入网认证）",
+          "entry": "scripts/收银台域/query_cert_version.py",
+          "features": ["查"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "description": "工作流业务知识",
+    "schema": {
+      "key": "workflow_id",
+      "fields": {
+        "job_name": "平台工作流名称（如 pay_dm_data）",
+        "name": "业务名称",
+        "description": "业务描述"
+      }
+    }
+  },
+  "entries": {
+    "1266": {
+      "name": "增量导入一本账对账单明细",
+      "description": "每日凌晨1点从MySQL增量导入一本账日志，加工交易中心交易数据和支付明细到dm_pay层，是分润链路的第一环",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "imp_ga_account_log_inc"
+    },
+    "1261": {
+      "name": "有赞支付账单明细初始化",
+      "description": "分润体系核心初始化，每日凌晨2点将ODS原始数据加工为支付账单明细、退款账单明细和商户名单，是分润链路的第二环",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "yz_pay_billing_details_init"
+    },
+    "1260": {
+      "name": "分润渠道交易明细处理",
+      "description": "每日早7点将账单明细关联渠道映射生成渠道维度交易明细和分润任务配置，最终导出到MySQL和NSQ，是分润链路的最后一环",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "profit_detail_new"
+    },
+    "1100": {
+      "name": "转账和提现业务数据处理",
+      "description": "处理转账和提现业务数据，包含任务5335(转账成功明细)和5338(提现明细)，生成出金渠道流水",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_withdraw_stat"
+    },
+    "1146": {
+      "name": "支付GMV+PMV数据处理",
+      "description": "处理支付业务的GMV+PMV数据，包含多个任务：5595(商户日汇总)、5613(支付充值汇总)、5575(交易中心支付充值)、5557(支付明细汇总)，从ODS原始表加工到BI大盘数据",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_dm_data"
+    },
+    "998": {
+      "name": "收单维度支付数据处理",
+      "description": "凯凯的收单维度支付数据处理，任务4709生成pay_trade_detail_collect_gmv表，已过滤重复支付",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_collect"
+    },
+    "1108": {
+      "name": "渠道支付成本数据处理",
+      "description": "处理渠道支付成本业务数据，任务5469生成pay_channel_order_items_cost表",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_gmv_stat_22_now"
+    },
+    "1045": {
+      "name": "商户认证信息处理",
+      "description": "处理商户认证信息，包含任务5433(付费商户认证信息)和5648(店铺认证信息)",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "daily_data_stat"
+    },
+    "1057": {
+      "name": "微信实名认证数据处理",
+      "description": "处理微信实名认证数据，任务5428生成wx_cert_un_finish_info表(未实名子商户号数据)",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "daily_data_wpl"
+    },
+    "pay_dm_data": {
+      "name": "支付域数据集市",
+      "description": "收单和支付域核心数据集市工作流(workflow_id=1146)。每天08:08调度，将ODS层的交易(pay_tc_trade/trading_event)、支付(pay_pc_payment_detail)、渠道订单(pay_channel_pay_order)、对账单(pay_check_channel_bill)、手续费(pay_fee_bill_trade)、结算(pay_settle_fund_detail/fee)等原始数据，逐层加工为dm_tc_trade_pay_recharge_22_now(交易支付充值宽表)→dm_all_pay_recharge_22_now(全量汇总)→GMV/PMV指标(pay_saas_gmv_pmv_24_now/pay_outer_gmv_pmv_24_now等)，最终导出飞书Bitable。包含分账月度统计(sharting_month_stat_1203)。负责人：李修宽。",
+      "updated_at": "2026-03-08 01:09:08",
+      "job_name": "pay_dm_data"
+    }
+  }
+}
