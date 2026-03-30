@@ -1,0 +1,363 @@
+{
+  "_meta": {
+    "description": "支付业务概念定义",
+    "updated_at": "2026-03-10"
+  },
+  "concepts": {
+    "GMV": {
+      "name": "GMV (Gross Merchandise Value)",
+      "definition": "某一统计周期内，经过排除测试店铺、第三方平台数据、货到付款按照200元/单折算等处理后，支付成功的订单总金额",
+      "calculation": "支付成功订单总金额 - 测试店 - 第三方平台 - 货到付款折算(200元/单)",
+      "unit": "分"
+    },
+    "PMV": {
+      "name": "PMV (Payment Merchandise Value)",
+      "definition": "衡量电商或数字支付平台上通过交易产生的总支付金额，在GMV基础上排除自有支付方式",
+      "calculation": "GMV - 微信支付-自有 - 储值卡 - 礼品卡 - 现金&标记支付",
+      "excluded_payments": ["微信支付-自有", "储值卡", "礼品卡", "现金支付", "标记支付"],
+      "unit": "分"
+    },
+    "赞内": {
+      "name": "赞内",
+      "definition": "有赞生态内的交易",
+      "scope": "有赞软件内"
+    },
+    "赞外": {
+      "name": "赞外",
+      "definition": "支付开放范围内的交易",
+      "scope": "支付开放"
+    },
+    "线上/线下": {
+      "name": "offline_tag_final",
+      "definition": "线上线下分类标签",
+      "enum": ["线上", "线下"]
+    },
+    "kdt_id": {
+      "name": "kdt_id",
+      "definition": "店铺唯一ID，是有赞域的唯一标识",
+      "domain": "有赞域",
+      "usage": "需求方通常提供kdt_id列表来指定要分析的店铺",
+      "cross_domain_mapping": {
+        "有赞域": "kdt_id",
+        "支付域": "有赞商户号(user_no/mch_id/payee_id)",
+        "桥接表": "ods.pay_funds_user (type=10)"
+      }
+    },
+    "有赞商户号": {
+      "name": "有赞商户号",
+      "definition": "支付域内商户的唯一标识，与kdt_id是同一实体在不同域的标识",
+      "domain": "支付域",
+      "fields": ["user_no", "mch_id", "payee_id"],
+      "equivalence": "user_no = mch_id = payee_id，三者可互换使用",
+      "relationship_with_kdt_id": "kdt_id是有赞域标识，有赞商户号是支付域标识，同一实体在不同域的ID"
+    },
+    "主体认证": {
+      "name": "主体认证",
+      "definition": "店铺认证的主体信息，如公司主体（A公司）",
+      "related_concept": "店铺过户",
+      "business_scenario": "店铺可以认证主体，后续可过户给其他主体"
+    },
+    "店铺过户": {
+      "name": "店铺过户",
+      "definition": "店铺的主体变更，从A主体过户给B主体",
+      "impact": "过户后，与原主体绑定的银网联子商户号会解绑（unbind_date更新）",
+      "related_table": "ods.pay_merchant_bank_pay_config"
+    },
+    "已付费商家": {
+      "name": "已付费商家",
+      "definition": "dev.union_paid_shop_cert_info表中的商家都是已付费商家",
+      "table": "dev.union_paid_shop_cert_info"
+    },
+    "cert_category": {
+      "name": "认证类目",
+      "definition": "商家认证类目，枚举值太多由需求方提供",
+      "examples": ["美业/健康/医学美容", "美业/健康/医疗诊所"]
+    },
+    "user_no与kdt_id关联": {
+      "name": "user_no与kdt_id关联",
+      "definition": "user_no是有赞商户号，kdt_id是店铺ID，类似驾照号vs身份证号，不能直接相等关联",
+      "bridge_table": "ods.pay_funds_user",
+      "usage": "通过user_no关联payee_id，kdt_id需要通过中间表ods.pay_funds_user转换"
+    },
+    "ID转换模式": {
+      "name": "ID转换模式",
+      "definition": "当需求方给kdt_id但查询表只有user_no/payee_id时，需要先做ID转换",
+      "bridge_table": "ods.pay_funds_user",
+      "conversion_rules": {
+        "type=10": "表示 user_no ↔ kdt_id 的映射关系",
+        "user_no字段": "有赞商户号",
+        "target_id字段": "type=10时等于kdt_id"
+      },
+      "sql_patterns": {
+        "user_no转kdt_id": "SELECT user_no, target_id as kdt_id FROM ods.pay_funds_user WHERE type = 10 AND user_no IN (...)",
+        "kdt_id转user_no": "SELECT user_no, target_id as kdt_id FROM ods.pay_funds_user WHERE type = 10 AND target_id IN (...)"
+      },
+      "典型场景": "需求方给kdt_id列表 → 需要查询的表只有payee_id → 通过ods.pay_funds_user把kdt_id转成user_no → 用user_no=payee_id去关联"
+    },
+    "payee_id": {
+      "name": "payee_id",
+      "definition": "收款方ID，等同于user_no(有赞商户号)",
+      "usage": "可直接与user_no关联"
+    },
+    "root_kdt_id": {
+      "name": "root_kdt_id",
+      "definition": "总店 kdt_id，连锁店总部ID",
+      "usage": "用于查询连锁店下属门店",
+      "related_table": "dev.kdt_id_fee_config"
+    },
+    "低费率子商户": {
+      "name": "低费率子商户",
+      "definition": "享受费率优惠的子商户号，需要单独签约",
+      "platforms": ["微信", "支付宝"],
+      "status_fields": {
+        "wx_low_sub": "微信低费率子商户签约状态，0=未签约，1=已签约",
+        "alipay_low_sub": "支付宝低费率子商户签约状态，0=未签约，1=已签约"
+      },
+      "related_table": "dev.kdt_id_fee_config",
+      "business_scenario": "查询连锁店旗下哪些门店还没有签约低费率子商户"
+    },
+    "银网联子商户号": {
+      "name": "银网联子商户号",
+      "definition": "银网联分配给商户的子商户号，用于微信/支付宝支付",
+      "domain": "银网联域",
+      "fields": {
+        "sub_mch_id": "微信/支付宝子商户号（银网联分配）",
+        "customer_sub_mch_id": "客户子商户号（银网联分配）"
+      },
+      "binding_rules": {
+        "one_to_one": "一个有赞商户号在一个时刻内只能对应一个银网联子商户号",
+        "unbind_date": "解绑时间戳，unbind_date=0表示当前有效绑定，非0表示已解绑",
+        "query_current": "查询当前有效绑定时需加条件 unbind_date=0"
+      },
+      "ownership_change": {
+        "description": "如果店铺发生过户（主体变更），unbind_date会更新为解绑时间戳",
+        "impact": "过户后原绑定失效，需要查询历史时注意unbind_date条件"
+      },
+      "related_table": "ods.pay_merchant_bank_pay_config",
+      "business_scenario": "根据银网联子商户号反查对应的店铺kdt_id"
+    },
+    "mch_id": {
+      "name": "mch_id",
+      "definition": "商户号，等同于user_no（有赞商户号）",
+      "usage": "可直接与user_no关联，在pay_merchant_bank_pay_config表中存储",
+      "related_table": "ods.pay_merchant_bank_pay_config"
+    },
+    "银网联子商户号转kdt_id": {
+      "name": "银网联子商户号转kdt_id",
+      "definition": "根据银网联子商户号查询对应的店铺kdt_id",
+      "tables_involved": ["ods.pay_merchant_bank_pay_config", "ods.pay_funds_user"],
+      "join_logic": {
+        "step1": "从pay_merchant_bank_pay_config表通过sub_mch_id或customer_sub_mch_id找到mch_id",
+        "step2": "通过mch_id=user_no关联pay_funds_user表",
+        "step3": "获取target_id作为kdt_id"
+      },
+      "workflow": "bank_sub_mch_to_kdt"
+    },
+    "业务线代码": {
+      "name": "业务线代码",
+      "definition": "有赞各业务线的唯一编码，用于区分微商城、门店、美业等不同产品",
+      "code_mapping": {
+        "820000000058": "微商城",
+        "820000000057": "微小店",
+        "820000000147": "门店",
+        "820000000059": "美业",
+        "810007442800": "普惠版",
+        "810006902200": "爱逛",
+        "810006274300": "教育",
+        "810006729200": "有赞客"
+      },
+      "field_names": {
+        "pay_cc_org_relation": "parent_node_no",
+        "all_history_ucert_cert_info": "source_app_code"
+      },
+      "usage": "按业务线统计开店/认证数据时使用 CASE WHEN 聚合"
+    },
+    "开店数据统计": {
+      "name": "开店数据统计",
+      "definition": "按业务线和日期统计每日开店数量",
+      "source_table": "dm_pay.pay_cc_org_relation",
+      "filter_conditions": {
+        "org_type": "MERCHANT_SERVICE_RELATION",
+        "biz_node_type": "USER"
+      },
+      "time_field": "created_at",
+      "group_by": "LEFT(created_at, 10)",
+      "workflow": "daily_shop_open_stats"
+    },
+    "认证数据统计": {
+      "name": "认证数据统计",
+      "definition": "按业务线和日期统计每日认证通过数量",
+      "source_table": "dm_pay.all_history_ucert_cert_info",
+      "filter_conditions": {
+        "modify_type": "1 (认证通过)"
+      },
+      "time_field": "audit_time",
+      "group_by": "LEFT(audit_time, 10)",
+      "workflow": "daily_cert_stats"
+    },
+    "modify_type": {
+      "name": "modify_type",
+      "definition": "认证修改类型，在all_history_ucert_cert_info表中",
+      "enum_values": {
+        "0": "初始状态",
+        "1": "认证通过",
+        "2": "认证失败",
+        "3": "其他类型",
+        "4": "其他类型"
+      },
+      "common_usage": "modify_type=1 过滤认证通过的记录"
+    },
+    "多级商户模型": {
+      "name": "多级商户模型（连锁关系）",
+      "definition": "有赞店铺的连锁关系模型，一个总部可以开设多个分店",
+      "source_table": "dm_pay.pay_cc_org_relation",
+      "relation_types": {
+        "连锁关系": {
+          "org_type": "MERCHANT_ORG_RELATION",
+          "root_no": "总部商户号",
+          "node_no": "子店商户号"
+        },
+        "开店关系": {
+          "org_type": "MERCHANT_SERVICE_RELATION",
+          "parent_node_no": "业务线代码",
+          "node_no": "商户号"
+        }
+      },
+      "single_shop_rule": "单店（非连锁）时，node_no = root_no（都是自己）",
+      "usage": "查询连锁店下所有子店时，用root_no过滤，org_type='MERCHANT_ORG_RELATION'"
+    },
+    "root_no": {
+      "name": "root_no",
+      "definition": "总部商户号，在连锁关系中表示总店",
+      "related_table": "dm_pay.pay_cc_org_relation",
+      "usage": "查询连锁店子店时作为过滤条件"
+    },
+    "node_no": {
+      "name": "node_no",
+      "definition": "节点商户号，在连锁关系中表示子店商户号",
+      "related_table": "dm_pay.pay_cc_org_relation",
+      "usage": "与root_no配合使用，单店时node_no=root_no"
+    },
+    "赞内GMV(2026新口径)": {
+      "name": "有赞软件内-GMV（2026新口径）",
+      "definition": "有赞标品订单的支付经过有赞支付系统的 GMV。不包含微信视频号订单、CRM导入订单等数据。",
+      "scope": "有赞Saas软件标品订单",
+      "exclusions": ["微信视频号订单", "CRM导入订单"],
+      "sql_condition": "gmv_type = '赞内'"
+    },
+    "赞内去重GMV(2026新口径)": {
+      "name": "有赞软件内-去重GMV（2026新口径）",
+      "definition": "在赞内GMV基础上，(1)剔除储值卡支付订单；(2)分销采购订单只算一次GMV",
+      "sql_conditions": ["gmv_type = '赞内'", "pay_method_name != '储值卡支付'"],
+      "dedup_rules": ["分销采购订单只算一次"]
+    },
+    "赞内PMV(2026新口径)": {
+      "name": "有赞软件内-PMV（2026新口径）",
+      "definition": "在赞内去重GMV基础上的PMV。注：分销采购订单只算一次PMV",
+      "sql_conditions": ["gmv_type = '赞内'", "pay_method_name != '储值卡支付'"],
+      "field": "pmv_amount / pmv_num"
+    },
+    "赞外GMV(2026新口径)": {
+      "name": "有赞外-GMV（2026新口径）",
+      "definition": "(1)支付开放业务的GMV；(2)所有支付账户充值业务的GMV（储值充值、零钱充值、余额充值等）",
+      "scope": ["支付开放业务", "充值业务"],
+      "sql_condition": "gmv_type = '赞外'"
+    },
+    "赞外PMV(2026新口径)": {
+      "name": "有赞外-PMV（2026新口径）",
+      "definition": "(1)支付开放业务的PMV；(2)所有支付账户充值业务的PMV（储值充值、零钱充值、余额充值等）",
+      "scope": ["支付开放业务", "充值业务"],
+      "sql_condition": "gmv_type = '赞外'",
+      "field": "pmv_amount / pmv_num"
+    },
+    "GMV通用口径(2026)": {
+      "name": "GMV/PMV通用统计口径（2026）",
+      "rules": [
+        "现金支付、标记支付、货到付款：订单金额在10万及以下按实际发生订单金额计；10万以上按10万计",
+        "商业化订购订单不计入统计"
+      ]
+    },
+    "大额支付": {
+      "name": "大额支付",
+      "definition": "一种特定的支付工具，pay_channel_api=90200001，channel_name=185",
+      "sql_conditions": ["pay_channel_api = '90200001'", "channel_name = '185'"],
+      "related_table": "ods.pay_pc_refund_detail"
+    },
+    "退款状态枚举": {
+      "name": "退款状态(state)",
+      "definition": "退款明细表(ods.pay_pc_refund_detail)中的退款状态枚举",
+      "enum_values": {
+        "1": "初始状态",
+        "2": "处理中",
+        "3": "失败(某种)",
+        "4": "失败",
+        "5": "失败(某种)",
+        "6": "成功"
+      },
+      "failure_states": [3, 4, 5],
+      "success_state": 6
+    },
+    "大额支付退款失败查询": {
+      "name": "大额支付退款失败订单查询",
+      "definition": "查询大额支付工具(pay_channel_api=90200001, channel_name=185)的退款失败订单",
+      "source_tables": ["ods.pay_pc_refund_detail", "ods.pay_tc_trade", "ods.pay_pc_payment_detail"],
+      "input_fields": {
+        "pay_channel_api": "90200001 (大额支付)",
+        "channel_name": "185",
+        "state": "4 (退款失败)",
+        "created_at": "起始时间"
+      },
+      "output_fields": ["outer_trade_no", "refund_detail_no", "external_payment_no", "trade_no", "payee_id", "state", "payAmount", "refundAmount"],
+      "sql_template": "SELECT DISTINCT t2.outer_trade_no, t1.refund_detail_no, p.external_payment_no, t1.trade_no, t2.payee_id, t1.state, p.amount as payAmount, t1.amount as refundAmount FROM ods.pay_pc_refund_detail t1 INNER JOIN ods.pay_tc_trade t2 ON t1.trade_no = t2.trade_no LEFT JOIN ods.pay_pc_payment_detail p ON t1.payment_detail_no = p.payment_detail_no WHERE t1.pay_channel_api = '90200001' AND t1.channel_name = 185 AND t1.state = 4 AND t1.created_at > '{起始时间}' LIMIT 1000"
+    },
+    "银联调单": {
+      "name": "银联调单匹配场景",
+      "definition": "根据公司主体、金额、清算日期、银行卡号前6后4位查找具体订单号",
+      "source_table": "dev.bank_card_pay_order",
+      "input_fields": {
+        "主体名称": "merchant_name 或 mch_short_name",
+        "金额": "amount（单位：分）",
+        "清算日期": "external_completed_at",
+        "银行卡前6位": "bank_card_no LIKE 'xxx%'",
+        "银行卡后4位": "bank_card_no LIKE '%xxx'"
+      },
+      "sql_template": "SELECT * FROM dev.bank_card_pay_order WHERE amount = {金额} AND bank_card_no LIKE '{卡号后4}%' AND bank_card_no LIKE '%{卡号前6}' AND (merchant_name = '{主体名称}' OR mch_short_name = '{主体名称}') AND external_completed_at >= '{清算日期} 00:00:00' AND external_completed_at <= '{清算日期+1天} 00:00:00'"
+    },
+    "支付视角GMV说明": {
+      "name": "支付视角下的GMV说明",
+      "definition": "支付视角下的GMV统计是以经过有赞支付系统的订单数据为前提的，只是有赞GMV体系的一个子集。但PMV的统计是最全的，整个有赞体系的PMV应以支付统计口径为准。",
+      "data_source": "有赞支付系统订单",
+      "note": "无法拿到全局GMV数据，但PMV统计最全"
+    }
+  },
+  "table_relationships": {
+    "dev.dm_all_pay_recharge_22_now -> dev.pay_gmv_26_items_1209": {
+      "relationship": "上游 -> 下游",
+      "description": "dev.dm_all_pay_recharge_22_now 是原始明细表，dev.pay_gmv_26_items_1209 是加工后的GMV/PMV聚合表"
+    },
+    "user_no -> kdt_id": {
+      "relationship": "通过 ods.pay_funds_user 关联",
+      "description": "user_no(有赞商户号) 与 kdt_id(店铺ID) 的对应关系存储在 ods.pay_funds_user 表中，type=10表示映射关系"
+    }
+  },
+  "data_request_workflow": {
+    "description": "数据需求处理通用流程",
+    "steps": [
+      "需求方提供 kdt_id 列表",
+      "按时间范围过滤 (如 pay_years='2025')",
+      "按需求方指定条件筛选 (如 offline_tag='线下', pay_is_repeated='否')",
+      "创建中间表进行统计聚合",
+      "关联生成最终结果表",
+      "导出数据给需求方"
+    ]
+  },
+  "id_conversion_workflow": {
+    "description": "ID转换工作流（常用模式）",
+    "when_to_use": "需求方给kdt_id，但查询表只有user_no/payee_id",
+    "steps": [
+      "从ods.pay_funds_user把kdt_id转成user_no",
+      "用user_no与目标表的payee_id关联",
+      "获取需要的信息"
+    ]
+  }
+}

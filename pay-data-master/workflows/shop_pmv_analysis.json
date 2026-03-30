@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "description": "多步骤数据需求工作流",
+    "version": "1.0"
+  },
+  "workflow": {
+    "id": "shop_pmv_analysis_2025",
+    "name": "指定店铺PMV分析-按支付方式细分",
+    "description": "分析需求方提供的店铺列表在指定年份的线下PMV，按支付方式（储值卡/标记支付/现金）细分统计",
+    "business_pattern": "数据需求处理通用流程",
+    "input": {
+      "kdt_id_list": "需求方提供的店铺ID列表",
+      "time_range": "需求方指定的时间范围（如 pay_years='2025'）",
+      "filters": "需求方指定的筛选条件"
+    },
+    "output": {
+      "final_table": "最终结果表，用于导出给需求方"
+    },
+    "steps": [
+      {
+        "step": 1,
+        "name": "整理店铺信息",
+        "description": "根据需求方提供的kdt_id列表，创建店铺清单表",
+        "source_table": "dev.kk_mch_shop_info",
+        "target_table": "dev.yy_shop_list_0115_final",
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT kdt_id, team_name, hq_kdt_id, hq_team_name, shop_role_name, product, open_status_name\nFROM {source_table}\nWHERE kdt_id IN ({kdt_id_list})"
+      },
+      {
+        "step": 2,
+        "name": "支付明细范围过滤",
+        "description": "按时间范围和店铺列表过滤支付明细，排除重复支付",
+        "source_table": "dev.dm_all_pay_recharge_22_now",
+        "target_table": "dev.yy_pay_items_0115",
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT a.*\nFROM {source_table} a\nWHERE pay_years = '{year}'\n  AND kdt_id IN (SELECT kdt_id FROM {shop_list_table})\n  AND pay_is_repeated = '否'"
+      },
+      {
+        "step": 3,
+        "name": "线下GMV/PMV汇总",
+        "description": "统计各店铺线下的GMV和PMV",
+        "source_table": "{step2_table}",
+        "target_table": "dev.yy_offline_gmv",
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT kdt_id,\n       SUM(gmv_amount) AS offline_gmv,\n       SUM(pmv_amount) AS offline_pmv\nFROM {source_table}\nWHERE offline_tag = '线下'\nGROUP BY kdt_id"
+      },
+      {
+        "step": 4,
+        "name": "单笔>5万统计",
+        "description": "统计线下单笔大于5万的GMV（需求方指定条件）",
+        "source_table": "{step2_table}",
+        "target_table": "dev.yy_offline_5w_gmv",
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT kdt_id, SUM(gmv_amount) AS 5w_gmv\nFROM {source_table}\nWHERE gmv_amount > 5000000\n  AND offline_tag = '线下'\nGROUP BY kdt_id"
+      },
+      {
+        "step": 5,
+        "name": "支付方式细分",
+        "description": "按储值卡/标记支付/现金支付方式统计GMV",
+        "source_table": "{step2_table}",
+        "target_table": "dev.yy_offline_pay_method_gmv",
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT kdt_id,\n       pay_method_name,\n       SUM(gmv_amount) AS p_gmv\nFROM {source_table}\nWHERE offline_tag = '线下'\n  AND (pay_tool_name IN ('标记支付', '现金支付') OR pay_method_name = '储值卡支付')\nGROUP BY kdt_id, pay_method_name"
+      },
+      {
+        "step": 6,
+        "name": "最终结果表",
+        "description": "关联所有中间表，生成最终宽表用于导出",
+        "source_tables": [
+          "{shop_list_table}",
+          "{step3_table}",
+          "{step4_table}",
+          "{step5_table}"
+        ],
+        "target_table": "dev.yy_offline_pay_method_gmv_0115",
+        "sql_template": "CREATE TABLE {target_table} AS\nSELECT a.*,\n       b.offline_gmv,\n       b.offline_pmv,\n       c.5w_gmv,\n       d1.p_gmv AS card_gmv,\n       d2.p_gmv AS mark_gmv,\n       d3.p_gmv AS cash_gmv\nFROM {shop_list_table} a\nLEFT JOIN {step3_table} b ON a.kdt_id = b.kdt_id\nLEFT JOIN {step4_table} c ON a.kdt_id = c.kdt_id\nLEFT JOIN {step5_table} d1 ON d1.kdt_id = a.kdt_id AND d1.pay_method_name = '储值卡支付'\nLEFT JOIN {step5_table} d2 ON d2.kdt_id = a.kdt_id AND d2.pay_method_name = '标记支付'\nLEFT JOIN {step5_table} d3 ON d3.kdt_id = a.kdt_id AND d3.pay_method_name = '现金支付'"
+      }
+    ],
+    "key_concepts": {
+      "kdt_id": "店铺唯一ID，需求方提供的核心参数",
+      "offline_tag": "支付场景标签，线上/线下",
+      "pay_is_repeated": "是否重复支付，通常过滤'否'",
+      "gmv_amount": "GMV金额，单位:分",
+      "pmv_amount": "PMV金额，单位:分"
+    },
+    "payment_methods": {
+      "储值卡支付": "pay_method_name = '储值卡支付'",
+      "标记支付": "pay_tool_name = '标记支付'",
+      "现金支付": "pay_tool_name = '现金支付'"
+    }
+  }
+}

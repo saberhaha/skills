@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "description": "任务业务知识",
+    "schema": {
+      "key": "task_id",
+      "fields": {
+        "job_name": "任务技术名",
+        "name": "业务名称",
+        "description": "业务描述"
+      }
+    }
+  },
+  "entries": {}
+}

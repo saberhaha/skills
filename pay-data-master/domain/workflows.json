@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "description": "工作流业务知识",
+    "schema": {
+      "key": "workflow_id",
+      "fields": {
+        "job_name": "工作流技术名",
+        "name": "业务名称",
+        "description": "业务描述"
+      }
+    }
+  },
+  "entries": {}
+}

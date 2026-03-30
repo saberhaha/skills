@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "description": "按业务线统计每日开店/认证数据",
+    "version": "1.0",
+    "created_at": "2026-03-11"
+  },
+  "workflow": {
+    "id": "daily_shop_cert_stats",
+    "name": "每日开店/认证数据统计",
+    "description": "按业务线（微商城、门店、美业等）统计近一个月每日开店/认证通过数量",
+    "pattern_type": "时间序列聚合",
+    "business_scenario": "运营需要监控各业务线每日开店和认证通过趋势",
+    "source_tables": ["dm_pay.pay_cc_org_relation", "dm_pay.all_history_ucert_cert_info"],
+    "variants": [
+      {
+        "name": "开店数据统计",
+        "description": "统计每日各业务线开店数量",
+        "source_table": "dm_pay.pay_cc_org_relation",
+        "sql_template": "SELECT LEFT(created_at, 10) AS stat_date, SUM(CASE WHEN parent_node_no = '820000000058' THEN 1 ELSE 0 END) AS `微商城`, SUM(CASE WHEN parent_node_no = '820000000057' THEN 1 ELSE 0 END) AS `微小店`, SUM(CASE WHEN parent_node_no = '820000000147' THEN 1 ELSE 0 END) AS `门店`, SUM(CASE WHEN parent_node_no = '820000000059' THEN 1 ELSE 0 END) AS `美业`, SUM(CASE WHEN parent_node_no = '810007442800' THEN 1 ELSE 0 END) AS `普惠版`, SUM(CASE WHEN parent_node_no = '810006902200' THEN 1 ELSE 0 END) AS `爱逛`, SUM(CASE WHEN parent_node_no = '810006274300' THEN 1 ELSE 0 END) AS `教育`, SUM(CASE WHEN parent_node_no = '810006729200' THEN 1 ELSE 0 END) AS `有赞客`, COUNT(1) AS `当日总量` FROM dm_pay.pay_cc_org_relation WHERE org_type = 'MERCHANT_SERVICE_RELATION' AND biz_node_type = 'USER' AND created_at > '{{start_time}}' GROUP BY LEFT(created_at, 10) ORDER BY stat_date DESC"
+      },
+      {
+        "name": "认证数据统计",
+        "description": "统计每日各业务线认证通过数量",
+        "source_table": "dm_pay.all_history_ucert_cert_info",
+        "sql_template": "SELECT LEFT(audit_time, 10) AS stat_date, SUM(CASE WHEN source_app_code = '820000000058' THEN 1 ELSE 0 END) AS `微商城`, SUM(CASE WHEN source_app_code = '820000000057' THEN 1 ELSE 0 END) AS `微小店`, SUM(CASE WHEN source_app_code = '820000000147' THEN 1 ELSE 0 END) AS `门店`, SUM(CASE WHEN source_app_code = '820000000059' THEN 1 ELSE 0 END) AS `美业`, SUM(CASE WHEN source_app_code = '810007442800' THEN 1 ELSE 0 END) AS `普惠版`, SUM(CASE WHEN source_app_code = '810006902200' THEN 1 ELSE 0 END) AS `爱逛`, SUM(CASE WHEN source_app_code = '810006274300' THEN 1 ELSE 0 END) AS `教育`, SUM(CASE WHEN source_app_code = '810006729200' THEN 1 ELSE 0 END) AS `有赞客`, COUNT(1) AS `当日总量` FROM dm_pay.all_history_ucert_cert_info WHERE modify_type = 1 AND audit_time > '{{start_time}}' GROUP BY LEFT(audit_time, 10) ORDER BY stat_date DESC"
+      }
+    ],
+    "input": {
+      "start_time": {
+        "description": "统计开始时间，默认近30天",
+        "default": "${DP_30_DAYS_AGO_Y_m_d_000}",
+        "example": "2026-02-10 00:00:00"
+      }
+    },
+    "output": {
+      "fields": ["stat_date", "微商城", "微小店", "门店", "美业", "普惠版", "爱逛", "教育", "有赞客", "当日总量"],
+      "description": "按日期返回各业务线的开店/认证数量"
+    },
+    "key_concepts": {
+      "业务线代码": {
+        "820000000058": "微商城",
+        "820000000057": "微小店",
+        "820000000147": "门店",
+        "820000000059": "美业",
+        "810007442800": "普惠版",
+        "810006902200": "爱逛",
+        "810006274300": "教育",
+        "810006729200": "有赞客"
+      },
+      "parent_node_no": "开店关系表中的业务线字段",
+      "source_app_code": "认证表中的业务线字段",
+      "modify_type": "认证修改类型，1=认证通过",
+      "org_type": "组织类型，MERCHANT_SERVICE_RELATION=开店关系",
+      "biz_node_type": "节点类型，USER=用户"
+    },
+    "table_info": {
+      "dm_pay.pay_cc_org_relation": {
+        "description": "组织关系表，存储开店关系",
+        "filter": "org_type='MERCHANT_SERVICE_RELATION' AND biz_node_type='USER'",
+        "time_field": "created_at"
+      },
+      "dm_pay.all_history_ucert_cert_info": {
+        "description": "认证信息快照表，存储所有认证记录",
+        "filter": "modify_type=1",
+        "time_field": "audit_time",
+        "note": "无分区，查询务必加时间条件"
+      }
+    },
+    "typical_questions": [
+      "统计近一个月每日开店数量",
+      "各业务线每日认证通过趋势",
+      "微商城最近30天开店数据"
+    ]
+  }
+}

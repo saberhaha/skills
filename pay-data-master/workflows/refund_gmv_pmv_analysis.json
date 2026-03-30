@@ -1,0 +1,52 @@
+{
+  "_meta": {
+    "description": "退款GMV/PMV统计模式",
+    "version": "1.0"
+  },
+  "workflow": {
+    "id": "refund_gmv_pmv_analysis",
+    "name": "退款GMV/PMV统计-按赞内赞外",
+    "description": "统计指定月份、指定类型（赞内/赞外）的退款GMV和退款PMV，按线上/线下分组",
+    "pattern_type": "单步查询模式",
+    "business_scenario": "需要分析某个月份的退款情况，区分赞内/赞外、线上/线下",
+    "input": {
+      "pay_month": {
+        "description": "支付月份，格式YYYY-MM",
+        "default": "2026-02",
+        "example": "2026-02"
+      },
+      "gmv_type": {
+        "description": "GMV类型",
+        "enum": ["赞内", "赞外"],
+        "default": "赞内"
+      }
+    },
+    "output": {
+      "fields": [
+        "pay_month",
+        "offline_tag_final",
+        "gmv_refund_amount_yuan",
+        "pmv_refund_amount_yuan"
+      ],
+      "unit": "元（已除以100）"
+    },
+    "step": {
+      "step": 1,
+      "name": "查询退款GMV/PMV",
+      "description": "从聚合表直接查询退款数据",
+      "source_table": "dev.pay_gmv_26_items_1209",
+      "sql_template": "SELECT\n  pay_month,\n  offline_tag_final,\n  SUM(gmv_refund_amount) / 100 AS gmv_refund_amount_yuan,\n  SUM(pmv_refund_amount) / 100 AS pmv_refund_amount_yuan\nFROM dev.pay_gmv_26_items_1209\nWHERE gmv_type = '{{gmv_type}}'\n  AND pay_month = '{{pay_month}}'\nGROUP BY pay_month, offline_tag_final\nLIMIT 1000"
+    },
+    "key_concepts": {
+      "gmv_refund_amount": "退款GMV金额，单位：分",
+      "pmv_refund_amount": "退款PMV金额，单位：分",
+      "gmv_type": "GMV类型，枚举值：赞内、赞外",
+      "offline_tag_final": "线上线下分类，枚举值：线上、线下"
+    },
+    "typical_questions": [
+      "2026年2月赞内的退款GMV和PMV分别是多少？",
+      "统计一下2026年1月赞外的退款情况，按线上线下分开",
+      "查询最近一个月赞内的退款数据"
+    ]
+  }
+}

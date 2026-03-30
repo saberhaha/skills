@@ -1,0 +1,5 @@
+# 此文件配置在安装 skill 时需要排除的文件或目录
+# 语法类似 .gitignore
+
+# 排除 domain 目录
+domain/
