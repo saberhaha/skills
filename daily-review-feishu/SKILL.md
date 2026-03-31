@@ -290,12 +290,12 @@ feishu_bitable_create_record(
 ### 日总结完成通知
 
 ```
-✅ 2026年XX月XX日 日总结已完成
+2026年XX月XX日 日总结完成 ✅
+
+今日主线：<一句话结论>
 
 📄 日总结：<storage.domain>/docx/<daily_doc_token>
-📋 本周复盘：<storage.domain>/docx/<weekly_doc_token>
-
-今日主线：<一句话概括今天最重要的事>
+📋 周复盘：<storage.domain>/docx/<weekly_doc_token>
 ```
 
 ### 周复盘完成通知
