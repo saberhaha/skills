@@ -281,7 +281,35 @@ feishu_bitable_create_record(
 
 ---
 
-## 注意事项
+---
+
+## 完成通知
+
+日总结和周复盘执行完毕后，**必须发飞书私聊通知宽哥**，消息格式如下：
+
+### 日总结完成通知
+
+```
+✅ 2026年XX月XX日 日总结已完成
+
+📄 日总结：<storage.domain>/docx/<daily_doc_token>
+📋 本周复盘：<storage.domain>/docx/<weekly_doc_token>
+
+今日主线：<一句话概括今天最重要的事>
+```
+
+### 周复盘完成通知
+
+```
+✅ XXXX年XX月XX日-XX月XX日 周复盘已完成
+
+📋 周复盘文档：<storage.domain>/docx/<weekly_doc_token>
+
+本周评分：执行力X | 主动性X | 稳定性X | 进化速度X
+下周 Try：<一件具体的改进动作>
+```
+
+**发送方式**：`message(action="send", channel="feishu", target="user:ou_fd3df39b5a00787f454fe0a856059bdb", message=<通知内容>)`
 
 1. **日总结多次执行覆盖，周复盘只能追加**
 2. **只获取与我相关的消息，不读取无关群聊**
