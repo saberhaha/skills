@@ -121,7 +121,7 @@ def filter_diff(raw_diff):
 
 # ─── 大模型打分 ───
 
-def score_with_claude(diff, api_key):
+def score_with_claude(diff, api_key, model="claude-sonnet-4-5"):
     """用 Claude Haiku 打分，返回 0-100"""
     prompt = (
         "以下是一段代码变更（git diff）。"
@@ -133,7 +133,7 @@ def score_with_claude(diff, api_key):
     )
     import urllib.request
     payload = json.dumps({
-        "model": "claude-haiku-4-5",
+        "model": model,
         "max_tokens": 100,
         "messages": [{"role": "user", "content": prompt}]
     }).encode()
@@ -167,8 +167,8 @@ def main():
     parser.add_argument("--until", default=datetime.now().strftime("%Y-%m-%d"), help="结束日期 YYYY-MM-DD")
     parser.add_argument("--api-key", required=True, help="Claude API Key")
     parser.add_argument("--repos", default="", help="指定 repo 列表（逗号分隔），不传则扫全 org")
+    parser.add_argument("--model", default="claude-sonnet-4-5", help="打分用的 Claude 模型（默认 claude-sonnet-4-5，可选 claude-opus-4-5）")
     parser.add_argument("--output", default="ai_ratio_report.csv", help="输出 CSV 文件名")
-    args = parser.parse_args()
 
     print(f"\n🔍 Git AI Ratio Analyzer")
     print(f"   Org: {args.org}  |  {args.since} → {args.until}\n")
@@ -211,7 +211,7 @@ def main():
             diff = filter_diff(raw_diff)
             if not diff.strip():
                 continue  # 跳过无业务代码的 commit
-            score = score_with_claude(diff, args.api_key)
+            score = score_with_claude(diff, args.api_key, args.model)
             scores.append(score)
             print(f"     [{score:3d}] {sha[:8]} {msg[:40]}")
             time.sleep(0.3)  # API rate limit
