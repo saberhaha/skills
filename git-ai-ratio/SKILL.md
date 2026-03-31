@@ -45,7 +45,5 @@ python3 ~/.openclaw/skills/git-ai-ratio/scripts/analyze.py \
 
 ## 注意事项
 
-- **占比是估算值**，非精确数字——AI 审查修改过的代码无法区分
+- **全量统计**：所有 commit 全部打分，不采样
 - **过滤自动生成文件**：lock 文件、proto、generated 等不参与统计
-- **采样策略**：每人每月超过 50 个 commit 时随机采样 50 个，控制成本
-- **成本参考**：20人/月约 $0.5-2（Claude Haiku）

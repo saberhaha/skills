@@ -11,7 +11,6 @@ Git AI Ratio Analyzer
 import argparse
 import json
 import os
-import random
 import sys
 import time
 from collections import defaultdict
@@ -35,7 +34,7 @@ INCLUDE_EXTENSIONS = {
     ".scala", ".groovy",
 }
 
-MAX_COMMITS_PER_AUTHOR = 50   # 每人每月最多采样数
+MAX_COMMITS_PER_AUTHOR = None  # None = 全量，不采样
 MAX_DIFF_CHARS = 2000          # 每个 diff 截断长度
 
 
@@ -203,7 +202,7 @@ def main():
     results = []  # (author, sampled, scored_commits)
 
     for author, commits in sorted(author_commits.items()):
-        sample = commits if len(commits) <= MAX_COMMITS_PER_AUTHOR else random.sample(commits, MAX_COMMITS_PER_AUTHOR)
+        sample = commits  # 全量统计，不采样
         scores = []
 
         print(f"  👤 {author} ({len(sample)}/{len(commits)} commits)")
