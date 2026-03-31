@@ -84,170 +84,96 @@ cp /Users/yzpay/.openclaw/media/inbound/<最新文件> /tmp/openclaw/uploads/che
 }
 ```
 
-#### 2. ⚡ 上传打卡照片（CDP FileChooser 方法）
+#### 2. ⚡ 上传打卡照片（Playwright connect_over_cdp 方法）
 
-> ⚠️ **重要**：飞书表单附件组件是 React 受控组件。`browser upload`、`setInputFiles`、`dispatch event`、`drag/drop` **全部无效**。
-> 唯一有效方法：CDP `Page.setInterceptFileChooserDialog` + 真实鼠标事件 + `DOM.setFileInputFiles(backendNodeId)`。
+> ⚠️ **重要**：飞书表单附件组件是 React 受控组件。`browser upload`、`drag/drop` **全部无效**。
+> **有效方法（2026-03-31 验证）**：用 Playwright `connect_over_cdp` 连接已有 Chrome，调用 `page.set_input_files()`。
+> 安装：`pip3 install playwright`（一次性，已安装则跳过）
 
-将以下脚本保存为 `/tmp/feishu_upload.py`，替换 `PAGE_ID` 和 `FILE_PATH` 后执行：
+执行公共上传脚本：
 
-```python
-#!/usr/bin/env python3
-import socket, base64, struct, json, time
-
-HOST = '127.0.0.1'
-PORT = 9222
-PAGE_ID = '<browser open/navigate 返回的 targetId>'
-FILE_PATH = '/tmp/openclaw/uploads/checkin-YYYYMMDD.jpg'
-
-def ws_frame(data, opcode=1):
-    data = data if isinstance(data, bytes) else data.encode()
-    length = len(data)
-    mask = b'\x01\x02\x03\x04'
-    masked = bytes(b ^ mask[i % 4] for i, b in enumerate(data))
-    if length < 126: header = bytes([0x80|opcode, 0x80|length]) + mask
-    elif length < 65536: header = bytes([0x80|opcode, 0x80|126]) + struct.pack('>H',length) + mask
-    else: header = bytes([0x80|opcode, 0x80|127]) + struct.pack('>Q',length) + mask
-    return header + masked
-
-def ws_recv(s, timeout=3):
-    frames = []; s.settimeout(timeout)
-    while True:
-        try:
-            h = b''
-            while len(h)<2: c=s.recv(2-len(h)); h+=c if c else b'\x00'
-            if len(h)<2: break
-            l = h[1]&0x7f
-            if l==126: e=b''; [e:=e+s.recv(2-len(e)) for _ in range(10) if len(e)<2]; l=struct.unpack('>H',e)[0]
-            elif l==127: e=b''; [e:=e+s.recv(8-len(e)) for _ in range(10) if len(e)<8]; l=struct.unpack('>Q',e)[0]
-            d=b''
-            while len(d)<l: c=s.recv(min(8192,l-len(d))); d+=c if c else b''
-            try: frames.append(json.loads(d.decode()))
-            except: pass
-        except socket.timeout: break
-    return frames
-
-def send(s, i, m, p=None): s.send(ws_frame(json.dumps({"id":i,"method":m,"params":p or {}})))
-def wait(s, i, t=5):
-    st=time.time()
-    while time.time()-st<t:
-        for f in ws_recv(s,1):
-            if f.get('id')==i: return f
-    return None
-
-key = base64.b64encode(b'checkin_upload_1').decode()
-s = socket.socket(); s.connect((HOST, PORT))
-hs = f"GET /devtools/page/{PAGE_ID} HTTP/1.1\r\nHost:{HOST}:{PORT}\r\nUpgrade:websocket\r\nConnection:Upgrade\r\nSec-WebSocket-Key:{key}\r\nSec-WebSocket-Version:13\r\n\r\n"
-s.send(hs.encode()); s.settimeout(3)
-buf=b''
-while b'\r\n\r\n' not in buf: buf+=s.recv(1024)
-
-# 1. 启用 Page + 拦截 fileChooser
-send(s,1,'Page.enable'); time.sleep(0.2); ws_recv(s)
-send(s,2,'Page.setInterceptFileChooserDialog',{'enabled':True}); wait(s,2,3)
-
-# 2. 获取上传区域坐标
-send(s,3,'Runtime.evaluate',{'expression':'''(function(){
-    var el=document.querySelector('.attach-editor-upload,[class*=attach-editor-upload],.attache-upload-text');
-    if(!el) el=Array.from(document.querySelectorAll('[class*=attach] *')).find(e=>e.textContent.trim()==='添加本地文件'&&!e.querySelector('*'));
-    if(!el) return null;
-    var r=el.getBoundingClientRect();
-    return {x:r.left+r.width/2,y:r.top+r.height/2};
-})()''','returnByValue':True})
-r=wait(s,3,3); coords=r.get('result',{}).get('result',{}).get('value') if r else None
-if not coords: print('ERROR:找不到上传区域'); s.close(); exit(1)
-x,y=int(coords['x']),int(coords['y'])
-
-# 3. 真实鼠标点击（触发 fileChooser）
-for ev in ['mouseMoved','mousePressed','mouseReleased']:
-    send(s,40,'Input.dispatchMouseEvent',{'type':ev,'x':x,'y':y,'button':'left','clickCount':1,'modifiers':0})
-    time.sleep(0.05); ws_recv(s,0.2)
-
-# 4. 等待 fileChooserOpened 事件
-backend_node_id=None; st=time.time()
-while time.time()-st<3:
-    for f in ws_recv(s,0.5):
-        if f.get('method')=='Page.fileChooserOpened':
-            backend_node_id=f.get('params',{}).get('backendNodeId'); break
-    if backend_node_id: break
-if not backend_node_id: print('ERROR:fileChooserOpened未触发'); s.close(); exit(1)
-
-# 5. 用 backendNodeId 写入文件（绕过 React）
-send(s,5,'DOM.setFileInputFiles',{'backendNodeId':backend_node_id,'files':[FILE_PATH]}); wait(s,5,5)
-
-# 6. 验证
-time.sleep(3)
-send(s,6,'Runtime.evaluate',{'expression':'''(function(){
-    var items=document.querySelectorAll('[class*="attach"][class*="item"]');
-    return {count:items.length,hasImg:items.length>0?!!items[0].querySelector('img'):false};
-})()''','returnByValue':True})
-r=wait(s,6,5); result=r.get('result',{}).get('result',{}).get('value') if r else None
-print(f'上传结果:{result}')
-# hasImg:true = 成功，false = 失败需重试
-s.close()
-```
-
-执行：
 ```bash
-python3 /tmp/feishu_upload.py
+python3 ~/.openclaw/scripts/feishu_upload.py \
+  /tmp/openclaw/uploads/checkin-YYYYMMDD.jpg \
+  shrcnRMkIRAcx9Gbo8jKd05OObe
 ```
 
-**验证标准**：
-- 输出 `hasImg: true` → ✅ 上传成功，继续填其他字段
-- 输出 `hasImg: false` → ❌ 失败，重新 navigate 表单后重试，最多 2 次
+参数说明：
+- 参数1：本地图片路径
+- 参数2：表单 URL 的唯一片段（用于定位已打开的 Chrome 标签页）
 
-**截图确认（脚本成功后）**：
+**验证方法（截图目视，不用 JS）**：
+- 执行后用 `browser screenshot` 截图
+- ✅ 成功：截图中上传区域出现图片**缩略图预览**（1张图）
+- ❌ 失败：仍显示「添加本地文件」文字 → 重新 navigate 表单后重试，最多 2 次
+
+> ⚠️ **不要用 JS `hasImg` 验证**：飞书缩略图的类名不固定，JS 选择器容易误判，截图目视最可靠。
+> ⚠️ **重试前必须重新 navigate 页面**：不刷新直接重试会导致图片叠加（多张图）。
+
+#### 3. 选择性别与 BASE 地
+
+> **注意**：snapshot ref 不可靠，统一用 snapshot 找到选项文字后用 JS click，提交前截图确认蓝色圆点。
+
+先用 `snapshot` 查看当前表单的选项结构，再根据实际 ref 点击对应选项。
+性别（男）和 BASE 地（杭州）都通过 snapshot ref 点击——不要用硬编码索引，因为选项渲染顺序可能随表单结构变化。
+
+点击方式：
+```json
+{"kind": "click", "ref": "<snapshot 中对应选项的 ref>"}
+```
+
+若 ref 点击无效（选中状态未出现蓝色圆点），改用文字匹配的 JS click：
+```js
+// 性别-男
+Array.from(document.querySelectorAll('[class*=select-list] [class*=row], [class*=radio] label'))
+  .find(el => el.textContent.trim() === '男')?.click()
+
+// BASE地-杭州
+Array.from(document.querySelectorAll('[class*=select-list] [class*=row], [class*=radio] label'))
+  .find(el => el.textContent.trim() === '杭州')?.click()
+```
+
+#### 4. 填写运动时长
+
+用 snapshot 获取当前数字输入框 ref，再用 `type` 填入**第二步计算出的实际分钟数**：
 
 ```json
-{"action": "screenshot", "profile": "user", "targetId": "<PAGE_ID>"}
+{"kind": "type", "ref": "<snapshot 中数字输入框的 ref>", "text": "<实际分钟数>"}
 ```
 
-确认附件区域显示图片缩略图。
+若 snapshot ref 失效，用 JS 动态注入（注意：`<实际分钟数>` 需在执行前替换为具体数字字符串）：
+```js
+(function(minutes) {
+  const input = document.querySelector('input[type=number]')
+               || Array.from(document.querySelectorAll('input')).find(i => i.placeholder && (i.placeholder.includes('分钟') || i.placeholder.includes('时长')));
+  if (!input) return 'not found';
+  const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+  setter.call(input, String(minutes));
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  return 'ok: ' + input.value;
+})(39)  // ← 替换为实际分钟数
+```
 
-#### 3. 选择性别
+#### 5. 截图确认所有字段
 
-用坐标点击（JS MouseEvent）更可靠：
+提交前截图，确认：
+- ✅ 性别已选中（蓝色圆点，显示「男」）
+- ✅ BASE地已选中（蓝色圆点，显示「杭州」）
+- ✅ 运动时长已填写（显示实际分钟数）
+- ✅ 照片已上传（缩略图可见，仅1张）
+
+#### 6. 提交表单
+
+用 JS evaluate 点击，不依赖硬编码 ref：
+
 ```json
 {
   "kind": "evaluate",
-  "fn": "() => { const rows = document.querySelectorAll('.base-component-select-list-editor-row'); rows[0].click(); }"
+  "fn": "() => { const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === '提交'); if (btn) { btn.click(); return 'clicked'; } return 'not found'; }"
 }
 ```
-或直接用 ref 点击对应选项。
 
-#### 4. 选择 BASE地
-
-```json
-{
-  "kind": "evaluate", 
-  "fn": "() => { const rows = document.querySelectorAll('.base-component-select-list-editor-row'); rows[2].click(); }"
-}
-```
-（rows[0]=男, rows[1]=女, rows[2]=杭州, rows[3]=北京...）
-
-> **注意**：snapshot 里的 ref 点击可能无选中效果，用坐标或 JS click 更可靠。提交前截图确认选中状态（蓝色圆点）。
-
-#### 5. 填写运动时长
-
-```json
-{"kind": "type", "ref": "e186", "text": "67"}
-```
-
-#### 6. 截图确认所有字段
-
-提交前截图，确认：
-- ✅ 性别已选中（蓝色圆点）
-- ✅ BASE地已选中（蓝色圆点）  
-- ✅ 运动时长已填写
-- ✅ 照片已上传（有文件名显示）
-
-#### 7. 提交表单
-
-```json
-{"kind": "click", "ref": "e225"}
-```
-
-#### 8. 确认提交成功
+#### 7. 确认提交成功
 
 截图确认页面出现「滴！健身卡」字样。
 
@@ -266,14 +192,15 @@ python3 /tmp/feishu_upload.py
 ## ⚠️ 已知问题与解决方案
 
 ### 图片上传（已解决，2026-03-31）
-- **根本原因**：飞书表单附件组件是 React 受控组件，所有外部写 `input.files` 的方法都被 React 拦截
-- **无效方法**（不要重复尝试）：`browser upload`、`DOM.setFileInputFiles(nodeId)`、`dispatch change event`、`drag/drop DragEvent`
-- **有效方法**：CDP `Page.setInterceptFileChooserDialog` + `Input.dispatchMouseEvent` + `DOM.setFileInputFiles(backendNodeId)`，见第七步脚本
-- **验证标准**：截图看到图片缩略图 + `hasImg: true`
+- **根本原因**：飞书表单附件组件是 React 受控组件
+- **无效方法**（不要重复尝试）：`browser upload`、`DOM.setFileInputFiles`、`dispatch change event`、`drag/drop DragEvent`
+- **有效方法**：Playwright `connect_over_cdp` + `page.set_input_files()`，见第七步脚本
+- **验证标准**：截图目视看到图片缩略图（不用 JS hasImg，类名不稳定易误判）
+- **多图问题根因**：重试前未刷新页面，导致图片叠加 → **重试前必须重新 navigate**
 
 ### 选项点击无效
 - **原因**：飞书表单的单选框用自定义 React 组件，普通 ref 点击可能不触发状态更新
-- **解决方案**：用 JS evaluate + `querySelectorAll('.base-component-select-list-editor-row')[index].click()`
+- **解决方案**：用文字匹配的 JS click，例如 `Array.from(document.querySelectorAll('[class*=select-list] [class*=row]')).find(el => el.textContent.trim() === '男')?.click()`
 - **验证**：提交前截图确认蓝色圆点出现
 
 ### 提交后无法编辑附件
