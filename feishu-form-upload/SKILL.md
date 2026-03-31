@@ -46,7 +46,7 @@ pip3 install playwright
 执行公共上传脚本：
 
 ```bash
-python3 ~/.openclaw/scripts/feishu_upload.py \
+python3 ~/.openclaw/skills/feishu-form-upload/scripts/upload.py \
   /tmp/openclaw/uploads/<字段名>-<YYYYMMDD>.jpg \
   <表单URL的唯一片段>
 ```

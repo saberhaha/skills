@@ -93,7 +93,7 @@ cp /Users/yzpay/.openclaw/media/inbound/<最新文件> /tmp/openclaw/uploads/che
 执行公共上传脚本：
 
 ```bash
-python3 ~/.openclaw/scripts/feishu_upload.py \
+python3 ~/.openclaw/skills/exercise-checkin/scripts/upload.py \
   /tmp/openclaw/uploads/checkin-YYYYMMDD.jpg \
   shrcnRMkIRAcx9Gbo8jKd05OObe
 ```
