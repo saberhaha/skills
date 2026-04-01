@@ -108,6 +108,21 @@ feishu_doc(action="create", title="YYYY年MM月DD日-每日简报", folder_token
 feishu_doc(action="write", doc_token=xxx, content=简报内容)
 ```
 
+文档创建后，记录 doc_token，用于拼接飞书文档链接：
+`https://qima.feishu.cn/docx/{doc_token}`
+
+### 第六步：回报执行摘要
+
+执行完成后，输出如下格式的摘要（发给自己 session 或 announce）：
+
+```
+✅ YYYY年MM月DD日每日简报已完成
+
+投递情况：
+- 📩 飞书消息：已发送给宽哥
+- 📄 飞书文档：[YYYY年MM月DD日-每日简报](https://qima.feishu.cn/docx/{doc_token})
+```
+
 ## 注意事项
 - 热点过滤：娱乐/体育/明星相关一律不要，聚焦社会/财经/科技/政治
 - 来源链接：标题后跟 ` - [来源](url)`，不要把链接放在加粗标题内部
